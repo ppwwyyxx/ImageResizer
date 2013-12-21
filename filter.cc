@@ -1,5 +1,5 @@
 // File: filter.cc
-// Date: Sat Dec 21 20:19:17 2013 +0800
+// Date: Sat Dec 21 21:21:49 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <functional>
@@ -24,10 +24,12 @@ real_t Filter::to_grey(const ::Color& c) {
 	return ret;
 }
 
-real_t Filter::convolve(const GreyImg& img, int i, int j, bool inside) {
+real_t Filter::prewitt_convolve(const GreyImg& img, int i, int j, bool inside) {
 	auto get = bind(inside ? &GreyImg::get_pixel : &GreyImg::get_pixel_safe, &img, _1, _2);
 
-	auto ret = abs(get(i + 1, j + 1) + get(i + 1, j) + get(i + 1, j - 1) - get(i - 1, j - 1) - get(i - 1, j) - get(i - 1, j + 1)) +
-			abs(get(i + 1, j + 1) + get(i, j + 1) + get(i - 1, j + 1) - get(i + 1, j - 1) - get(i, j - 1) - get(i - 1, j - 1));
+	auto ret = abs(get(i + 1, j + 1) + get(i + 1, j) + get(i + 1, j - 1)
+					- get(i - 1, j - 1) - get(i - 1, j) - get(i - 1, j + 1))
+				+ abs(get(i + 1, j + 1) + get(i, j + 1) + get(i - 1, j + 1)
+					- get(i + 1, j - 1) - get(i, j - 1) - get(i - 1, j - 1));
 	return ret;
 }
