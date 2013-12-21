@@ -1,5 +1,5 @@
 // File: utils.hh
-// Date: Sat Dec 21 17:36:00 2013 +0800
+// Date: Sat Dec 21 20:01:23 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
@@ -28,7 +28,7 @@ const real_t EPS = 1e-6;
 
 inline real_t sqr(real_t x) { return x * x; }
 
-#define between(a, b, c) ((a >= b) && (a <= c))
+#define between(a, b, c) ((a >= b) && (a < c))
 #define REP(x, y) for (auto x = decltype(y){0}; x < (y); x ++)
 #define REPL(x, y, z) for (auto x = decltype(z){y}; x < (z); x ++)
 #define REPD(x, y, z) for (auto x = decltype(z){y}; x >= (z); x --)

@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sat Dec 21 17:28:53 2013 +0800
+// Date: Sat Dec 21 20:12:13 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -118,6 +118,14 @@ void Img::crop() {
 
 real_t GreyImg::get_pixel(int r, int c) const {
 	m_assert(between(r, 0, h) && between(c, 0, w));
+	return *(pixel + r * w + c);
+}
+
+real_t GreyImg::get_pixel_safe(int r, int c) const {
+	if (r < 0) r = 0;
+	else if (r >= h) r = h - 1;
+	if (c < 0) c = 0;
+	else if (c >= w) c = w - 1;
 	return *(pixel + r * w + c);
 }
 

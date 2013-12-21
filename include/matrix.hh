@@ -1,5 +1,5 @@
 // File: matrix.hh
-// Date: Sat Dec 21 17:37:11 2013 +0800
+// Date: Sat Dec 21 17:44:39 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -35,6 +35,7 @@ class Matrix {
 
 		Matrix & operator = (const Matrix & m) {
 			if (this != &m) {
+				free_2d<real_t>(val, h);
 				w = m.w, h = m.h;
 				val = new real_t* [h];
 				REP(i, h) {

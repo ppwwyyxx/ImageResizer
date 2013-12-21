@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sat May 04 12:57:00 2013 +0800
+// Date: Sat Dec 21 20:11:43 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -8,7 +8,6 @@
 #include <memory>
 #include <Magick++.h>
 #include "color.hh"
-
 class GreyImg;
 
 class Img : public std::enable_shared_from_this<Img> {
@@ -110,6 +109,8 @@ class GreyImg {
 		std::shared_ptr<Img> to_img() const;
 
 		real_t get_pixel(int x, int y) const;
+
+		real_t get_pixel_safe(int, int) const;
 
 		void set_pixel(int x, int y, real_t c);
 
