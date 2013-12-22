@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sat Dec 21 20:11:43 2013 +0800
+// Date: Sun Dec 22 11:02:36 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -7,6 +7,7 @@
 #include <cstring>
 #include <memory>
 #include <Magick++.h>
+#include "matrix.hh"
 #include "color.hh"
 class GreyImg;
 
@@ -96,6 +97,8 @@ class GreyImg {
 
 		GreyImg(int m_w, int m_h)
 		{ init(m_w, m_h); }
+
+		GreyImg(const Matrix& m);
 
 		GreyImg(const Img& img)
 		{ init_from_img(img); }

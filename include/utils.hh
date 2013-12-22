@@ -1,5 +1,5 @@
 // File: utils.hh
-// Date: Sat Dec 21 20:01:23 2013 +0800
+// Date: Sun Dec 22 12:41:10 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
@@ -44,6 +44,7 @@ inline real_t sqr(real_t x) { return x * x; }
 
 template <typename T>
 inline void free_2d(T** ptr, int w) {
+	if (!w) return;
 	if (ptr != nullptr)
 		for (int i = 0; i < w; i ++)
 			delete[] ptr[i];
@@ -54,6 +55,11 @@ template<typename T>
 bool update_min(T &dest, const T &val) {
 	if (val < dest) { dest = val; return true; }
 	return false;
+}
+
+template<typename T>
+T min(const T& x, const T& y, const T& z) {
+	return min(min(x, y), z);
 }
 
 template<typename T>

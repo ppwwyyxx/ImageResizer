@@ -1,5 +1,5 @@
 // File: matrix.hh
-// Date: Sat Dec 21 17:44:39 2013 +0800
+// Date: Sun Dec 22 12:29:14 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -13,6 +13,8 @@ class Matrix {
 	public:
 		real_t **val;
 		int w, h;
+
+		Matrix(){}
 
 		Matrix(int m_w, int m_h):		// initialize with value 0
 			w(m_w), h(m_h) {
@@ -87,5 +89,42 @@ class Matrix {
 		Matrix col(int i) const;
 
 		static Matrix I(int);
+};
+
+
+
+template <typename T>
+class MatrixBase {
+	public:
+		T **val;
+		int w, h;
+
+		MatrixBase(int m_w, int m_h):
+			w(m_w), h(m_h) {
+				val = new T* [h];
+				for (int i = 0; i < h; i ++)
+					val[i] = new T[w]();
+		}
+
+		MatrixBase(int m_w, int m_h, T** v)
+			:w(m_w), h(m_h) {
+			val = new T* [h];
+			int rowlen = w * sizeof(T);
+
+			for (int i = 0; i < h; i++) {
+				val[i] = new T [w]();
+				if (v)
+					memcpy(val[i], v[i], rowlen);
+			}
+		}
+
+		~MatrixBase() {
+			for (int i = 0; i < h; i++)
+				delete [] val[i];
+			delete [] val;
+		}
+
+		// get the ith row
+		T*& operator [] (int i) { return val[i]; }
 };
 

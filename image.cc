@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sat Dec 21 20:12:13 2013 +0800
+// Date: Sun Dec 22 11:02:41 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -132,6 +132,12 @@ real_t GreyImg::get_pixel_safe(int r, int c) const {
 void GreyImg::set_pixel(int r, int c, real_t val) {
 	m_assert(between(r, 0, h) && between(c, 0, w));
 	*(pixel + r * w + c) = val;
+}
+
+GreyImg::GreyImg(const Matrix& m) {
+	init(m.w, m.h);
+	REP(i, h) REP(j, w)
+		set_pixel(i, j, m.get(i, j));
 }
 
 void GreyImg::init_from_img(const Img& img) {

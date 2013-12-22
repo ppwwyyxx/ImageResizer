@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sun Dec 22 02:43:09 2013 +0800
+//Date: Sun Dec 22 12:35:05 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -7,32 +7,42 @@
 #include "matrix.hh"
 #include "image.hh"
 
+typedef vector<int> Path;
+
 class ImageResizer {
-	const imgptr & orig_img;
-	const GreyImg& greyimg;
+	public:
+	const Img& orig_img;
+	GreyImg greyimg;
 
-	Matrix* energy;
+	Matrix energy;
 
-	Matrix* weight_mask;
+	Matrix weight_mask;
+
+//	MatrixBase<bool> removed;
 
 	public:
-		ImageResizer(const imgptr& _orig_img):
-			orig_img(_orig_img), greyimg(*orig_img.get()) {
+		ImageResizer(const Img& _orig_img):
+			orig_img(_orig_img), greyimg(_orig_img),
+			weight_mask(_orig_img.w, _orig_img.h) {
 			energy = cal_all_energy();
-			weight_mask = new Matrix(greyimg.w, greyimg.h);
 		}
 
-		~ImageResizer() {
-			delete energy;
-			delete weight_mask;
-		}
+		~ImageResizer() { }
 
-		imgptr resize(int w, int h);
+		Img resize(int w, int h);
 
-		imgptr remove_column(const imgptr& img, int number);
+		void remove_column(int number);
+
 
 	protected:
 		// caller release memory
-		Matrix* cal_all_energy() const;
+		Matrix cal_all_energy() const;
+
+		static Path get_path(const Matrix& e, real_t min_e, int min_i);
+
+		void remove_one_column();
+
+		// remove path from orig_img, greyimg, weight_mask, update energy, record to removedPoint
+		void remove_vert_path(const Path& p);
 
 };
