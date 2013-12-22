@@ -1,5 +1,5 @@
 // File: matrix.hh
-// Date: Sun Dec 22 12:29:14 2013 +0800
+// Date: Sun Dec 22 14:06:15 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -12,7 +12,7 @@
 class Matrix {
 	public:
 		real_t **val;
-		int w, h;
+		int w = 0, h = 0;
 
 		Matrix(){}
 

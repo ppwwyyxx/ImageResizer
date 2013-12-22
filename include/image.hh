@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sun Dec 22 11:02:36 2013 +0800
+// Date: Sun Dec 22 14:50:39 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -11,7 +11,7 @@
 #include "color.hh"
 class GreyImg;
 
-class Img : public std::enable_shared_from_this<Img> {
+class Img {
 	protected:
 		void init(int m_w, int m_h);
 
@@ -23,7 +23,16 @@ class Img : public std::enable_shared_from_this<Img> {
 
 		Img(const Img& img):
 			Img(img.w, img.h)
-		{ memcpy(pixel, img.pixel, w * h * sizeof(Color)); }
+		{ memcpy(pixel, img.pixel, img.w * img.h * sizeof(Color)); }
+
+		Img& operator=(const Img& img) {
+			if (this != &img) {
+				delete[] pixel;
+				init(img.w, img.h);
+				memcpy(pixel, img.pixel, w * h * sizeof(Color));
+			}
+			return *this;
+		}
 
 		Img(Img&& img) {
 			w = img.w, h = img.h;
@@ -43,15 +52,15 @@ class Img : public std::enable_shared_from_this<Img> {
 		Img(int m_w, int m_h)
 		{ init(m_w, m_h); }
 
-		Img(const Magick::Image& img)
+		explicit Img(const Magick::Image& img)
 		{ init_from_image(img); }
 
-		Img(const char* fname) {
+		explicit Img(const char* fname) {
 			Magick::Image img(fname);
 			init_from_image(img);
 		}
 
-		Img(const GreyImg& gr);
+		explicit Img(const GreyImg& gr);
 
 		~Img()
 		{ delete[] pixel; }
@@ -88,22 +97,31 @@ class GreyImg {
 		void init_from_image(const Magick::Image img);
 
 	public:
-		int w, h;
+		int w =0, h = 0;
 		real_t* pixel;
 
 		GreyImg(const GreyImg& img):
 			GreyImg(img.w, img.h)
 		{ memcpy(pixel, img.pixel, w * h * sizeof(real_t)); }
 
+		GreyImg& operator=(const GreyImg& img) {
+			if (this != &img) {
+				delete[] pixel;
+				init(img.w, img.h);
+				memcpy(pixel, img.pixel, w * h * sizeof(real_t));
+			}
+			return *this;
+		}
+
 		GreyImg(int m_w, int m_h)
 		{ init(m_w, m_h); }
 
 		GreyImg(const Matrix& m);
 
-		GreyImg(const Img& img)
+		explicit GreyImg(const Img& img)
 		{ init_from_img(img); }
 
-		GreyImg(const Magick::Image& img)
+		explicit GreyImg(const Magick::Image& img)
 		{ init_from_image(img); }
 
 		~GreyImg()

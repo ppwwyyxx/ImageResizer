@@ -1,11 +1,12 @@
 // File: utils.hh
-// Date: Sun Dec 22 12:41:10 2013 +0800
+// Date: Sun Dec 22 13:49:56 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
 #pragma once
 
 #include <cstdarg>
+#include <iostream>
 #include <cstdlib>
 #include <string>
 #include <sstream>
@@ -78,9 +79,15 @@ void c_fprintf(const char* col, FILE* fp, const char* fmt, ...);
 class HWTimer {
 	timeval m_start;
 
+	string msg;
+
 	public:
 
-		HWTimer();
+		HWTimer(const string& msg);
+
+		~HWTimer() {
+			cout << msg << ": " << sec() << " seconds" << endl;
+		}
 
 		double sec() const;
 

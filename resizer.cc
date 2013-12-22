@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 22 12:42:17 2013 +0800
+//Date: Sun Dec 22 15:03:21 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -18,7 +18,9 @@ Img ImageResizer::resize(int w, int h) {
 
 // repeatly remove n=number columns
 void ImageResizer::remove_column(int number) {
-	number = 1;
+	print_debug("Removing %d columns...\n", number);
+	result = orig_img;
+	HWTimer timer("Removing columns");
 	REP(k, number) {
 		remove_one_column();
 	}
@@ -38,8 +40,8 @@ void ImageResizer::remove_one_column() {
 	REPL(i, 1, h) {
 		acc_energy.get(i, 0) = min(acc_energy.get(i - 1, 0), acc_energy.get(i - 1, 1))
 			+ point_weight(i, 0);
-		acc_energy.get(i, h - 1) = min(acc_energy.get(i - 1, h - 1), acc_energy.get(i - 1, h - 2))
-			+ point_weight(i, h - 1);
+		acc_energy.get(i, w - 1) = min(acc_energy.get(i - 1, w - 1), acc_energy.get(i - 1, w - 2))
+			+ point_weight(i, w - 1);
 		REPL(j, 1, w - 1)
 			acc_energy.get(i, j) = min(acc_energy.get(i - 1, j - 1), acc_energy.get(i - 1, j), acc_energy.get(i - 1, j + 1))
 				+ point_weight(i, j);
@@ -49,20 +51,19 @@ void ImageResizer::remove_one_column() {
 	REP(j, w)
 		if (update_min(min_e, acc_energy.get(h - 1, j)))
 			min_i = j;
-	auto path = ImageResizer::get_path(acc_energy, min_e, min_i);
+	auto path = ImageResizer::get_path(acc_energy, min_i);
 	remove_vert_path(path);
 }
 
 Matrix ImageResizer::cal_all_energy() const {
 	Matrix m(greyimg.w, greyimg.h);
-	REP(i, m.w) REP(j, m.h) {
-		bool inside = (between(i, 1, m.w - 1) && between(j, 1, m.h - 1));
-		m.get(i, j) = Filter::prewitt_convolve(greyimg, i, j, inside);
+	REP(i, m.h) REP(j, m.w) {
+		m.get(i, j) = Filter::prewitt_convolve(greyimg, i, j);
 	}
 	return m;
 }
 
-Path ImageResizer::get_path(const Matrix& e, real_t min_e, int min_i) {
+Path ImageResizer::get_path(const Matrix& e, int min_i) {
 	Path ret(e.h);
 	ret[e.h - 1] = min_i;
 	int nowx = min_i;
@@ -80,11 +81,20 @@ Path ImageResizer::get_path(const Matrix& e, real_t min_e, int min_i) {
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
-	//Img new_img(orig_img.w - 1, orig_img.h);
-	imgptr pathed = make_shared<Img>(orig_img);
-	REP(i, orig_img.h) {
-		pathed->set_pixel(i, p[i], Color(0, 0, 0));
+	Img ret(result.w - 1, result.h);
+	REP(i, result.h) {
+		REP(j, result.w - 1)
+			ret.set_pixel(i, j, result.get_pixel(i, j < p[i] ? j : j + 1));
 	}
-	FileRender render(pathed, "path.png");
-	render.finish();
+
+	imgptr test = make_shared<Img>(result);
+	REP(i, result.h)
+		test->set_pixel(i, p[i], Color(0, 0, 0));
+	static int i = 0;
+	FileRender rd(test, ("path" + to_string(i++) + ".png").c_str());
+	rd.finish();
+
+	result = ret;
+	greyimg = GreyImg(result);
+	energy = cal_all_energy();
 }

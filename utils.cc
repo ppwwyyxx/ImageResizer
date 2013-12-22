@@ -1,5 +1,5 @@
 // File: utils.cc
-// Date: Tue Apr 23 11:33:17 2013 +0800
+// Date: Sun Dec 22 13:48:00 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "utils.hh"
@@ -30,7 +30,7 @@ void c_fprintf(const char* col, FILE* fp, const char* fmt, ...) {
 }
 
 
-HWTimer::HWTimer() { reset();}
+HWTimer::HWTimer(const string& _msg):msg(_msg) { reset();}
 
 double HWTimer::sec() const {
 	timeval tv;

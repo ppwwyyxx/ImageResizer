@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sun Dec 22 11:02:41 2013 +0800
+// Date: Sun Dec 22 14:31:24 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -45,9 +45,9 @@ Img::Img(const GreyImg& gr) {
 Img Img::get_resized(real_t factor) const {
 	int neww = ceil(w * factor),
 		newh = ceil(h * factor);
-	Image img = MImg(shared_from_this()).get_img();
+	Image img = MImg(make_shared<Img>(*this)).get_img();
 	img.resize(Magick::Geometry(neww, newh));
-	return move(img);
+	return Img(img);
 }
 
 void Img::fill(const ::Color& c) {
