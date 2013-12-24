@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sun Dec 22 15:03:05 2013 +0800
+// Date: Mon Dec 23 14:59:30 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -22,6 +22,11 @@ void test_energy() {
 	imgptr energyimg = make_shared<Img>(energy);
 	FileRender render(energyimg, "out.png");
 	render.finish();
+
+
+	imgptr result = make_shared<Img>(resizer.result);
+	FileRender rd2(result, "result.png");
+	rd2.finish();
 }
 
 

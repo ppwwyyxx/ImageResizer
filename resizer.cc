@@ -1,25 +1,20 @@
 //File: resizer.cc
-//Date: Sun Dec 22 15:03:21 2013 +0800
+//Date: Tue Dec 24 11:49:27 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
 #include "resizer.hh"
 #include "render/filerender.hh"
-#include "filter.hh"
 
-Img ImageResizer::resize(int w, int h) {
-	Img i(1, 1);
-	if (w == greyimg.w and h == greyimg.h)
-		return orig_img;
+void ImageResizer::resize(int w, int h) {
+	result = orig_img;
 	if (w < greyimg.w)
 		remove_column(greyimg.w - w);
-	return i;
 }
 
 // repeatly remove n=number columns
 void ImageResizer::remove_column(int number) {
 	print_debug("Removing %d columns...\n", number);
-	result = orig_img;
 	HWTimer timer("Removing columns");
 	REP(k, number) {
 		remove_one_column();
@@ -51,16 +46,16 @@ void ImageResizer::remove_one_column() {
 	REP(j, w)
 		if (update_min(min_e, acc_energy.get(h - 1, j)))
 			min_i = j;
+	PP(min_e);
 	auto path = ImageResizer::get_path(acc_energy, min_i);
 	remove_vert_path(path);
 }
 
-Matrix ImageResizer::cal_all_energy() const {
-	Matrix m(greyimg.w, greyimg.h);
-	REP(i, m.h) REP(j, m.w) {
-		m.get(i, j) = Filter::prewitt_convolve(greyimg, i, j);
+void ImageResizer::cal_all_energy() {
+	energy = Matrix(greyimg.w, greyimg.h);
+	REP(i, energy.h) REP(j, energy.w) {
+		energy.get(i, j) = convolve(i, j);
 	}
-	return m;
 }
 
 Path ImageResizer::get_path(const Matrix& e, int min_i) {
@@ -69,32 +64,58 @@ Path ImageResizer::get_path(const Matrix& e, int min_i) {
 	int nowx = min_i;
 	for (int i = e.h - 2; i >= 0; i --) {
 		real_t min = e.get(i, nowx);
+		int minx = nowx;
 		if (nowx != 0)
 			if (update_min(min, e.get(i, nowx - 1)))
-				nowx --;
+				minx = nowx - 1;
 		if (nowx != e.w - 1)
 			if (update_min(min, e.get(i, nowx + 1)))
-				nowx ++;
-		ret[i] = nowx;
+				minx = nowx + 1;
+		ret[i] = minx;
+		nowx = minx;
 	}
 	return ret;
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
+	HWTimer timer("remove one path");
 	Img ret(result.w - 1, result.h);
-	REP(i, result.h) {
-		REP(j, result.w - 1)
-			ret.set_pixel(i, j, result.get_pixel(i, j < p[i] ? j : j + 1));
-	}
-
-	imgptr test = make_shared<Img>(result);
 	REP(i, result.h)
-		test->set_pixel(i, p[i], Color(0, 0, 0));
-	static int i = 0;
-	FileRender rd(test, ("path" + to_string(i++) + ".png").c_str());
-	rd.finish();
+		REP(j, result.w - 1)
+			ret.set_pixel(i, j, result.get_pixel(i, (j < p[i]) ? j : j + 1));
+
+	Matrix new_weight(weight_mask.w - 1, weight_mask.h);
+	REP(i, weight_mask.h)
+		REP(j, weight_mask.w - 1)
+			new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
+	weight_mask = new_weight;
+
+	/*
+	 *imgptr test = make_shared<Img>(result);
+	 *REP(i, result.h)
+	 *    test->set_pixel(i, p[i], Color(0, 0, 0));
+	 *static int i = 0;
+	 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
+	 *rd.finish();
+	 */
 
 	result = ret;
 	greyimg = GreyImg(result);
-	energy = cal_all_energy();
+//	cal_all_energy();
+	update_energy(p);
+}
+
+// update energy, after greyimg is correctly updated
+void ImageResizer::update_energy(const Path& p) {
+	Matrix newe(energy.w - 1, energy.h);
+	REP(i, energy.h) REP(j, energy.w - 1) {
+		int del_index = p[i];
+		if (j < del_index - 1)
+			newe.get(i, j) = energy.get(i, j);
+		else if (j == del_index - 1 or j == del_index)
+			newe.get(i, j) = convolve(i, j);
+		else
+			newe.get(i, j) = energy.get(i, j + 1);
+	}
+	energy = move(newe);
 }
