@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Tue Dec 24 11:53:13 2013 +0800
+//Date: Tue Dec 24 23:41:18 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -8,6 +8,10 @@
 #include "matrix.hh"
 #include "filter.hh"
 #include "image.hh"
+
+enum class CONV_T {
+	PREWITT, V_SQURARE, SOBEL, LAPLACIAN
+};
 
 typedef vector<int> Path;
 
@@ -20,6 +24,8 @@ class ImageResizer {
 	Img result;
 
 	Matrix energy;
+
+	CONV_T conv_t = CONV_T::PREWITT;
 
 	vector<Path> removed_path;
 
@@ -36,6 +42,7 @@ class ImageResizer {
 
 		void remove_column(int number);
 
+		void set_conv(CONV_T c) { conv_t = c; }
 
 	protected:
 		// caller release memory
@@ -51,6 +58,17 @@ class ImageResizer {
 		void update_energy(const Path& p);
 
 		inline real_t convolve(int i, int j) const {
-			return Filter::prewitt_convolve(greyimg, i, j);
+			switch (conv_t) {
+				case CONV_T::PREWITT:
+					return Filter::prewitt_convolve(greyimg, i, j);
+				case CONV_T::V_SQURARE:
+					return Filter::vsquare_convolve(greyimg, i, j);
+				case CONV_T::SOBEL:
+					return Filter::sobel_convolve(greyimg, i, j);
+				case CONV_T::LAPLACIAN:
+					return Filter::laplacian_convolve(greyimg, i, j);
+				default:
+					m_assert(false);
+			}
 		}
 };

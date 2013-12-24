@@ -1,5 +1,5 @@
 // File: filter.cc
-// Date: Sun Dec 22 14:13:13 2013 +0800
+// Date: Tue Dec 24 23:40:39 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <functional>
@@ -32,5 +32,35 @@ real_t Filter::prewitt_convolve(const GreyImg& img, int i, int j) {
 					- get(i - 1, j - 1) - get(i - 1, j) - get(i - 1, j + 1))
 				+ abs(get(i + 1, j + 1) + get(i, j + 1) + get(i - 1, j + 1)
 					- get(i + 1, j - 1) - get(i, j - 1) - get(i - 1, j - 1));
+	return ret;
+}
+
+real_t Filter::vsquare_convolve(const GreyImg& img, int i, int j) {
+	bool inside = (between(i, 1, img.h - 1) && between(j, 1, img.w - 1));
+	auto get = bind(inside ? &GreyImg::get_pixel : &GreyImg::get_pixel_safe, &img, _1, _2);
+	auto ret = sqr(get(i + 1, j + 1) + get(i + 1, j) + get(i + 1, j - 1)
+					- get(i - 1, j - 1) - get(i - 1, j) - get(i - 1, j + 1));
+	/*
+	 *auto ret = sqr(get(i - 1, j + 1) + get(i, j + 1) + get(i + 1, j + 1)
+	 *                - get(i - 1, j - 1) - get(i, j - 1) - get(i + 1, j - 1));
+	 */
+	return ret;
+}
+
+real_t Filter::sobel_convolve(const GreyImg& img, int i, int j) {
+	bool inside = (between(i, 1, img.h - 1) && between(j, 1, img.w - 1));
+	auto get = bind(inside ? &GreyImg::get_pixel : &GreyImg::get_pixel_safe, &img, _1, _2);
+	auto ret = abs(get(i + 1, j + 1) + 2 * get(i + 1, j) + get(i + 1, j - 1)
+					- get(i - 1, j - 1) - 2 * get(i - 1, j) - get(i - 1, j + 1))
+				+ abs(get(i + 1, j + 1) + 2 * get(i, j + 1) + get(i - 1, j + 1)
+					- get(i + 1, j - 1) - 2 * get(i, j - 1) - get(i - 1, j - 1));
+	return ret;
+}
+
+real_t Filter::laplacian_convolve(const GreyImg& img, int i, int j) {
+	bool inside = (between(i, 1, img.h - 1) && between(j, 1, img.w - 1));
+	auto get = bind(inside ? &GreyImg::get_pixel : &GreyImg::get_pixel_safe, &img, _1, _2);
+	auto ret = abs(get(i + 1, j) + get(i - 1, j) + get(i, j - 1) + get(i, j + 1)
+			- 4 * get(i, j));
 	return ret;
 }

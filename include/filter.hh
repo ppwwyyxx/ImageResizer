@@ -1,5 +1,5 @@
 // File: filter.hh
-// Date: Sun Dec 22 14:10:03 2013 +0800
+// Date: Tue Dec 24 23:40:53 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -12,4 +12,7 @@ class Filter {
 		static real_t to_grey(const ::Color&);
 
 		static real_t prewitt_convolve(const GreyImg& img, int, int);
+		static real_t vsquare_convolve(const GreyImg& img, int, int);
+		static real_t sobel_convolve(const GreyImg& img, int, int);
+		static real_t laplacian_convolve(const GreyImg& img, int, int);
 };
