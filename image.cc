@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sat Dec 28 16:18:54 2013 +0800
+// Date: Sat Dec 28 16:27:58 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -26,9 +26,9 @@ void Img::init_from_image(const Image& img) {
 
 	const PixelPacket* src = img.getConstPixels(0, 0, w, h);
 	REP(i, h) REP(j, w) {
-		dest->x = double(src->red) / QuantumRange;
-		dest->y = double(src->green) / QuantumRange;
-		dest->z = double(src->blue) / QuantumRange;
+		dest->x = (real_t)(src->red) / QuantumRange;
+		dest->y = (real_t)(src->green) / QuantumRange;
+		dest->z = (real_t)(src->blue) / QuantumRange;
 		dest ++;
 		src ++;
 	}

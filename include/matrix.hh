@@ -1,5 +1,5 @@
 // File: matrix.hh
-// Date: Sun Dec 22 14:06:15 2013 +0800
+// Date: Sat Dec 28 16:40:18 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -11,6 +11,8 @@
 // basic 2-d array
 class Matrix {
 	public:
+		typedef real_t vtype;
+
 		real_t **val;
 		int w = 0, h = 0;
 

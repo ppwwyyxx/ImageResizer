@@ -1,5 +1,5 @@
 // File: utils.hh
-// Date: Sat Dec 28 15:42:18 2013 +0800
+// Date: Sat Dec 28 16:26:54 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
@@ -24,7 +24,7 @@ string TERM_COLOR(int k);
 #define COLOR_RESET   "\x1b[0m"
 
 
-typedef double real_t;
+typedef float real_t;
 const real_t EPS = 1e-6;
 
 inline real_t sqr(real_t x) { return x * x; }

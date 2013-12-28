@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sat Dec 28 16:10:42 2013 +0800
+//Date: Sat Dec 28 16:40:06 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -70,9 +70,8 @@ void ImageResizer::remove_one_column() {
 
 void ImageResizer::cal_all_energy() {
 	energy = Matrix(greyimg.w, greyimg.h);
-	REP(i, energy.h) REP(j, energy.w) {
+	REP(i, energy.h) REP(j, energy.w)
 		energy.get(i, j) = convolve(i, j);
-	}
 }
 
 Path ImageResizer::get_path(const Matrix& e, int min_i) {
@@ -95,39 +94,36 @@ Path ImageResizer::get_path(const Matrix& e, int min_i) {
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
-	HWTimer timer("remove one path");
+//	HWTimer timer("remove one path");
 
 	// update result
-//	auto fut1 = async(launch::async, [&] {
-			Img ret(result.w - 1, result.h);
-			REP(i, result.h) {
-				memcpy(&ret.get_pixel(i, 0), &result.get_pixel(i, 0), (p[i] * sizeof(Color)));
-				if (p[i] != result.w - 1)
-					memcpy(&ret.get_pixel(i, p[i]), &result.get_pixel(i, p[i] + 1), (result.w - p[i] - 1) * sizeof(Color));
-			}
-			/*
-			 *imgptr test = make_shared<Img>(result);
-			 *REP(i, result.h)
-			 *    test->set_pixel(i, p[i], Color(0, 0, 0));
-			 *static int i = 0;
-			 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
-			 *rd.finish();
-			 */
+	Img ret(result.w - 1, result.h);
+	REP(i, result.h) {
+		memcpy(&ret.get_pixel(i, 0), &result.get_pixel(i, 0), (p[i] * sizeof(Color)));
+		if (p[i] != result.w - 1)
+			memcpy(&ret.get_pixel(i, p[i]), &result.get_pixel(i, p[i] + 1), (result.w - p[i] - 1) * sizeof(Color));
+	}
+	/*
+	 *imgptr test = make_shared<Img>(result);
+	 *REP(i, result.h)
+	 *    test->set_pixel(i, p[i], Color(0, 0, 0));
+	 *static int i = 0;
+	 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
+	 *rd.finish();
+	 */
 
-			//cout << timer.get_sec() << endl;
-			result = move(ret);
-			greyimg = GreyImg(result);
-			//cout << timer.get_sec() << endl;
-			//cal_all_energy();
-			update_energy(p);
-			//cout << timer.get_sec() << endl;
-//		});
+	result = move(ret);
+	greyimg = GreyImg(result);
+	//cal_all_energy();
+	update_energy(p);
 
 	// update weight
 	Matrix new_weight(weight_mask.w - 1, weight_mask.h);
-	REP(i, weight_mask.h)
-		REP(j, weight_mask.w - 1)
-		new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
+	REP(i, weight_mask.h) {
+		memcpy(&new_weight.get(i, 0), &weight_mask.get(i, 0), p[i] * sizeof(Matrix::vtype));
+		if (p[i] != weight_mask.w - 1)
+			memcpy(&new_weight.get(i, p[i]), &weight_mask.get(i, p[i] + 1), (weight_mask.w - p[i] - 1) * sizeof(Matrix::vtype));
+	}
 	weight_mask = move(new_weight);
 }
 
