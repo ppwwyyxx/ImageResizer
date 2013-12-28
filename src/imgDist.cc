@@ -1,9 +1,10 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 02:27:44 2013 +0800
+//Date: Sun Dec 29 02:33:52 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
 #include <iostream>
+#include <omp.h>
 using namespace std;
 
 #include "imgDist.hh"
@@ -89,7 +90,9 @@ namespace {
 void ImageDist::calculate() {
 	auto min_dist = numeric_limits<real_t>::max();
 	int min_i = -1;
-	for (int n = results.size(), i = 0; i < n; i ++) {
+	int n = results.size();
+#pragma omp parallel for schedule(dynamic)
+	for (int i = 0; i < n; i ++) {
 		HWTimer timer("for one result");
 		real_t dist = cal_img_dist(orig, results[i]);
 #pragma omp critical
