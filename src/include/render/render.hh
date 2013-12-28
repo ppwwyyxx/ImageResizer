@@ -1,5 +1,5 @@
 // File: render.hh
-// Date: Sun Dec 22 14:34:58 2013 +0800
+// Date: Sun Dec 29 03:11:12 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
@@ -36,10 +36,12 @@ class RenderBase {
 
 		void write(const std::shared_ptr<Img>& r) {
 			m_assert((r->h == geo.h) && (r->w == geo.w));
-			Color *dest = r->pixel;
-			REP(i, geo.h) REP(j, geo.w) {
-				write(j, i, *dest);
-				dest ++;
+			REP(i, geo.h) {
+				Color* dest = r->pixel[i];
+				REP(j, geo.w) {
+					write(j, i, *dest);
+					dest ++;
+				}
 			}
 		}
 

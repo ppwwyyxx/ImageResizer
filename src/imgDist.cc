@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 03:00:30 2013 +0800
+//Date: Sun Dec 29 03:12:27 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -61,6 +61,7 @@ namespace {
 		REP(i, m.h) row_min[i] = numeric_limits<real_t>::max();
 		REP(i, m.w) col_min[i] = numeric_limits<real_t>::max();
 		REP(i, m.h)  {
+			PP(i);
 			REP(j, m.w) {
 				real_t ret = cal_IMED(img2, p2[i], img1, p1[j], max(row_min[i], col_min[j]));
 				m.get(i, j) = ret;

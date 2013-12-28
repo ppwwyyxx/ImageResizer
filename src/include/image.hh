@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sun Dec 29 01:35:04 2013 +0800
+// Date: Sun Dec 29 03:14:20 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -19,17 +19,21 @@ class Img {
 
 	public:
 		int w = 0, h = 0;
-		Color* pixel;
+		Color** pixel;
 
 		Img(const Img& img):
 			Img(img.w, img.h)
-		{ memcpy(pixel, img.pixel, img.w * img.h * sizeof(Color)); }
+		{
+			REP(i, h)
+				memcpy(pixel[i], img.pixel[i], w * sizeof(Color));
+		}
 
 		Img& operator=(const Img& img) {
 			if (this != &img) {
-				delete[] pixel;
+				free_2d<Color>(pixel, h);
 				init(img.w, img.h);
-				memcpy(pixel, img.pixel, w * h * sizeof(Color));
+				REP(i, h)
+					memcpy(pixel[i], img.pixel[i], w * sizeof(Color));
 			}
 			return *this;
 		}
@@ -41,7 +45,7 @@ class Img {
 		}
 
 		Img & operator = (Img && r) {
-			delete[] pixel;
+			free_2d<Color>(pixel, h);
 			pixel = r.pixel;
 			w = r.w, h = r.h;
 			r.pixel = nullptr;
@@ -62,15 +66,24 @@ class Img {
 		explicit Img(const GreyImg& gr);
 
 		~Img()
-		{ delete[] pixel; }
+		{ free_2d<Color>(pixel, h); }
 
 		Img get_resized(real_t factor) const;
 
 		Img get_resized(int, int) const;
 
-		Color& get_pixel(int, int) const;
+		inline Color& get_pixel(int r, int c) const {
+			m_assert(between(r, 0, h) && between(c, 0, w));
+			return pixel[r][c];
+		}
 
-		Color& get_pixel_safe(int, int) const;
+		inline Color& get_pixel_safe(int r, int c) const {
+			if (r < 0) r = 0;
+			else if (r >= h) r = h - 1;
+			if (c < 0) c = 0;
+			else if (c >= w) c = w - 1;
+			return get_pixel(r, c);
+		}
 
 		Color get_pixel(real_t, real_t) const;
 
@@ -101,7 +114,7 @@ class GreyImg {
 
 		GreyImg(const GreyImg& img):
 			GreyImg(img.w, img.h)
-		{ memcpy(pixel, img.pixel, w * h * sizeof(real_t)); }
+	{ memcpy(pixel, img.pixel, w * h * sizeof(real_t)); }
 
 		GreyImg& operator=(const GreyImg& img) {
 			if (this != &img) {
@@ -136,9 +149,18 @@ class GreyImg {
 
 		std::shared_ptr<Img> to_img() const;
 
-		real_t& get_pixel(int x, int y) const;
+		inline real_t& get_pixel(int r, int c) const {
+			m_assert(between(r, 0, h) && between(c, 0, w));
+			return *(pixel + r * w + c);
+		}
 
-		real_t& get_pixel_safe(int, int) const;
+		inline real_t& get_pixel_safe(int r, int c) const {
+			if (r < 0) r = 0;
+			else if (r >= h) r = h - 1;
+			if (c < 0) c = 0;
+			else if (c >= w) c = w - 1;
+			return get_pixel(r, c);
+		}
 
 };
 

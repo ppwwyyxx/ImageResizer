@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sun Dec 29 02:42:20 2013 +0800
+// Date: Sun Dec 29 03:14:22 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -11,7 +11,9 @@ using namespace Magick;
 
 void Img::init(int m_w, int m_h) {
 	w = m_w, h = m_h;
-	pixel = new ::Color[w * h];
+	pixel = new ::Color*[h];
+	REP(i, h)
+		pixel[i] = new ::Color[w];
 }
 
 void GreyImg::init(int m_w, int m_h) {
@@ -23,15 +25,16 @@ void Img::init_from_image(const Image& img) {
 	Magick::Geometry size = img.size();
 	init(size.width(), size.height());
 
-	::Color *dest = pixel;
-
 	const PixelPacket* src = img.getConstPixels(0, 0, w, h);
-	REP(i, h) REP(j, w) {
-		dest->x = (real_t)(src->red) / QuantumRange;
-		dest->y = (real_t)(src->green) / QuantumRange;
-		dest->z = (real_t)(src->blue) / QuantumRange;
-		dest ++;
-		src ++;
+	REP(i, h) {
+		::Color * dest = pixel[i];
+		REP(j, w) {
+			dest->x = (real_t)(src->red) / QuantumRange;
+			dest->y = (real_t)(src->green) / QuantumRange;
+			dest->z = (real_t)(src->blue) / QuantumRange;
+			dest ++;
+			src ++;
+		}
 	}
 }
 
@@ -62,21 +65,6 @@ void Img::fill(const ::Color& c) {
 	REP(i, h) REP(j, w) get_pixel(i, j) = c;
 }
 
-::Color& Img::get_pixel(int r, int c) const {
-	m_assert(between(r, 0, h) && between(c, 0, w));
-	::Color *dest = pixel + r * w + c;
-	return *dest;
-}
-
-::Color& Img::get_pixel_safe(int r, int c) const {
-	if (r < 0) r = 0;
-	else if (r >= h) r = h - 1;
-	if (c < 0) c = 0;
-	else if (c >= w) c = w - 1;
-	::Color *dest = pixel + r * w + c;
-	return *dest;
-}
-
 ::Color Img::get_pixel(real_t y, real_t x) const {
 	::Color ret = ::Color::BLACK;
 	real_t dy = y - floor(y), dx = x - floor(x);
@@ -91,19 +79,6 @@ void Img::save(const string& fname) const {
 	imgptr result = make_shared<Img>(*this);
 	FileRender rd(result, fname);
 	rd.finish();
-}
-
-real_t& GreyImg::get_pixel(int r, int c) const {
-	m_assert(between(r, 0, h) && between(c, 0, w));
-	return *(pixel + r * w + c);
-}
-
-real_t& GreyImg::get_pixel_safe(int r, int c) const {
-	if (r < 0) r = 0;
-	else if (r >= h) r = h - 1;
-	if (c < 0) c = 0;
-	else if (c >= w) c = w - 1;
-	return *(pixel + r * w + c);
 }
 
 GreyImg::GreyImg(const Matrix& m) {
