@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sat Dec 28 17:45:32 2013 +0800
+// Date: Sat Dec 28 18:20:01 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 	string infile = options[INPUT].arg,
 		   outfile = options[OUTPUT].arg;
 
-	CONV_T conv = CONV_T::PREWITT;
+	CONV_T conv = CONV_T::SOBEL;
 	if (options[CONV].arg) {
 		string opt = options[CONV].arg;
 		if (opt == "prewitt") conv = CONV_T::PREWITT;
