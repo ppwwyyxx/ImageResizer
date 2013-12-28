@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sat Dec 28 12:41:07 2013 +0800
+// Date: Sat Dec 28 13:12:43 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -17,12 +17,6 @@ struct Arg: public option::Arg
     fprintf(stderr, "%s", msg1);
     fwrite(opt.name, opt.namelen, 1, stderr);
     fprintf(stderr, "%s", msg2);
-  }
-
-  static option::ArgStatus Unknown(const option::Option& option, bool msg)
-  {
-    if (msg) printError("Unknown option '", option, "'\n");
-    return option::ARG_ILLEGAL;
   }
 
   static option::ArgStatus Required(const option::Option& option, bool msg)
@@ -55,13 +49,14 @@ struct Arg: public option::Arg
   }
 };
 
-enum optionIndex { HELP, INPUT , OUTPUT, ENERGY, CONV, UNKNOWN};
+enum optionIndex { INPUT , OUTPUT, ENERGY, CONV, WIDTH, HEIGHT, UNKNOWN};
 const option::Descriptor usage[] = {
-	{HELP, 0, "h", "help", Arg::None, "-h	Print this help."	},
 	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	Input image."},
 	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	Output image."},
 	{ENERGY, 0, "e", "energy", Arg::NonEmpty, "-e   	Output energy image."},
 	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type: prewitt, vsquare, sobel, laplacian"},
+	{WIDTH, 0, "w", "width", Arg::NonEmpty, "-w	Width, pixels in integer, or float between (0, 1]" },
+	{HEIGHT, 0, "h", "height", Arg::NonEmpty, "-h	Height, pixels in integer, or float between (0, 1]" },
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
                                              "  example --unknown -- --this_is_no_option\n"
                                              "  example -unk --plus -ppp file1 file2\n" },
@@ -71,16 +66,13 @@ const option::Descriptor usage[] = {
 using namespace std;
 using namespace Magick;
 
-bool TEMPDEBUG = false;
+void printHelp() {
+	int columns = getenv("COLUMNS")? atoi(getenv("COLUMNS")) : 80;
+	option::printUsage(fwrite, stdout, usage, columns);
+	exit(1);
+}
 
 void check_option(const option::Option options[]) {
-	auto printHelp = [&]() {
-		int columns = getenv("COLUMNS")? atoi(getenv("COLUMNS")) : 80;
-		option::printUsage(fwrite, stdout, usage, columns);
-		exit(1);
-	};
-	if (options[HELP])
-		printHelp();
 	if (!options[INPUT] || !options[OUTPUT])
 		printHelp();
 }
@@ -100,15 +92,10 @@ int main(int argc, char* argv[]) {
 	CONV_T conv = CONV_T::PREWITT;
 	if (options[CONV].arg) {
 		string opt = options[CONV].arg;
-		PP(opt);
-		if (opt == "prewitt")
-			conv = CONV_T::PREWITT;
-		else if (opt == "vsquare")
-			conv = CONV_T::V_SQURARE;
-		else if (opt == "sobel")
-			conv = CONV_T::SOBEL;
-		else if (opt == "laplacian")
-			conv = CONV_T::LAPLACIAN;
+		if (opt == "prewitt") conv = CONV_T::PREWITT;
+		else if (opt == "vsquare") conv = CONV_T::V_SQURARE;
+		else if (opt == "sobel") conv = CONV_T::SOBEL;
+		else if (opt == "laplacian") conv = CONV_T::LAPLACIAN;
 	}
 
 	Img input(infile);
@@ -116,15 +103,32 @@ int main(int argc, char* argv[]) {
 
 	if (options[ENERGY].arg) {
 		string out_energy_file = options[ENERGY].arg;
-		PP(out_energy_file);
-
-		GreyImg energy(resizer.energy);
-		imgptr energyimg = make_shared<Img>(energy);
-		FileRender render(energyimg, out_energy_file);
-		render.finish();
+		imgptr energyimg = make_shared<Img>(GreyImg(resizer.energy));
+		FileRender(energyimg, out_energy_file).finish();
 	}
 
-	resizer.resize(500, 525);
+	int destw = 0, desth = 0;
+	try {
+		if (options[WIDTH].arg) {
+			double v = stod(options[WIDTH].arg), intpart;
+			if (v <= 0) throw(v);
+			if (0 < v && v <= 1) destw = input.w * v;
+			else if (modf(v, &intpart) != 0.0 || !(destw = intpart)) printHelp();
+		}
+		if (options[HEIGHT].arg) {
+			double v = stod(options[HEIGHT].arg), intpart;
+			if (v <= 0) throw(v);
+			if (0 < v && v <= 1) desth = input.h * v;
+			else if (modf(v, &intpart) != 0.0 || !(desth = intpart)) printHelp();
+		}
+	} catch (...) { printHelp(); }
+	if (! destw && ! desth) printHelp();
+	if (!destw) destw = img.w;
+	if (!desth) desth = img.h;
+	PP(destw);
+	PP(desth);
+
+	resizer.resize(destw, desth);
 
 	imgptr result = make_shared<Img>(resizer.result);
 	FileRender rd2(result, outfile);

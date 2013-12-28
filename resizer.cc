@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Wed Dec 25 20:53:48 2013 +0800
+//Date: Sat Dec 28 13:04:58 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -46,7 +46,6 @@ void ImageResizer::remove_one_column() {
 	REP(j, w)
 		if (update_min(min_e, acc_energy.get(h - 1, j)))
 			min_i = j;
-	PP(min_e);
 	auto path = ImageResizer::get_path(acc_energy, min_i);
 	remove_vert_path(path);
 }
