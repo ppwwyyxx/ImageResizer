@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sat Dec 28 11:35:07 2013 +0800
+//Date: Sat Dec 28 15:19:24 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -8,6 +8,9 @@
 #include "matrix.hh"
 #include "filter.hh"
 #include "image.hh"
+
+const double MASK_COLOR_THRES = 50.0 / 255;
+const double MASK_WEIGHT = 20;
 
 enum class CONV_T {
 	PREWITT, V_SQURARE, SOBEL, LAPLACIAN
@@ -40,9 +43,22 @@ class ImageResizer {
 
 		void remove_column(int number);
 
+		void remove_row(int number);
+
 		void set_conv(CONV_T c) { conv_t = c; }
 
+		void update_mask(const Img& mask_img);
+
 	protected:
+
+		template <typename T>
+		static T img_transpose(const T& img) {
+			T ret(img.h, img.w);
+			REP(i, img.h) REP(j, img.w)
+				ret.set_pixel(j, i, img.get_pixel(i, j));
+			return ret;
+		}
+
 		// caller release memory
 		void cal_all_energy();
 

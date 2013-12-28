@@ -1,7 +1,7 @@
 # $File: Makefile
-# $Date: Tue Dec 24 11:58:34 2013 +0800
+# $Date: Sat Dec 28 15:26:32 2013 +0800
 
-OBJ_DIR = obj
+OBJ_DIR = build
 TARGET = main
 
 INCLUDE_DIR = -Iinclude
@@ -40,7 +40,7 @@ $(OBJ_DIR)/%.o: %.cc
 $(OBJ_DIR)/%.d: %.cc  Makefile
 	@mkdir -p $(dir $@)
 	@echo "[dep] $< ..."
-	@$(CC) $(INCLUDE_DIR) $(DEFINES) -MM -MT "$(OBJ_DIR)/$(<:.cc=.o) $(OBJ_DIR)/$(<:.cc=.d)" "$<"  > "$@"
+	@$(CC) $(INCLUDE_DIR) $(DEFINES) $(CXXFLAGS) -MM -MT "$(OBJ_DIR)/$(<:.cc=.o) $(OBJ_DIR)/$(<:.cc=.d)" "$<"  > "$@"
 
 
 $(TARGET): $(OBJS)

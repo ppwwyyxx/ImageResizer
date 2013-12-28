@@ -1,8 +1,9 @@
 //File: resizer.cc
-//Date: Sat Dec 28 13:04:58 2013 +0800
+//Date: Sat Dec 28 15:18:59 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
+#include <future>
 #include "resizer.hh"
 #include "render/filerender.hh"
 
@@ -10,6 +11,20 @@ void ImageResizer::resize(int w, int h) {
 	result = orig_img;
 	if (w < greyimg.w)
 		remove_column(greyimg.w - w);
+	if (h < greyimg.h)
+		remove_row(greyimg.h - h);
+}
+
+
+void ImageResizer::remove_row(int number) {
+	print_debug("Removing %d row...\n", number);
+	weight_mask = weight_mask.transpose();
+	energy = energy.transpose();
+	result = img_transpose(result);
+	greyimg = img_transpose(greyimg);
+	remove_column(number);
+	result = img_transpose(result);
+	greyimg = img_transpose(greyimg);
 }
 
 // repeatly remove n=number columns
@@ -77,18 +92,13 @@ Path ImageResizer::get_path(const Matrix& e, int min_i) {
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
+//	HWTimer timer("remove one path");
+
+	// update result
 	Img ret(result.w - 1, result.h);
 	REP(i, result.h)
 		REP(j, result.w - 1)
-			ret.set_pixel(i, j, result.get_pixel(i, (j < p[i]) ? j : j + 1));
-
-	Matrix new_weight(weight_mask.w - 1, weight_mask.h);
-	REP(i, weight_mask.h)
-		REP(j, weight_mask.w - 1)
-			new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
-	weight_mask = new_weight;
-
-
+		ret.set_pixel(i, j, result.get_pixel(i, (j < p[i]) ? j : j + 1));
 	/*
 	 *imgptr test = make_shared<Img>(result);
 	 *REP(i, result.h)
@@ -100,8 +110,17 @@ void ImageResizer::remove_vert_path(const Path& p) {
 
 	result = ret;
 	greyimg = GreyImg(result);
-//	cal_all_energy();
+	//cal_all_energy();
 	update_energy(p);
+
+
+	// update weight
+	Matrix new_weight(weight_mask.w - 1, weight_mask.h);
+	REP(i, weight_mask.h)
+		REP(j, weight_mask.w - 1)
+		new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
+	weight_mask = new_weight;
+
 }
 
 // update energy, after greyimg is correctly updated
@@ -117,4 +136,17 @@ void ImageResizer::update_energy(const Path& p) {
 			newe.get(i, j) = energy.get(i, j + 1);
 	}
 	energy = move(newe);
+}
+
+
+void ImageResizer::update_mask(const Img& mask_img) {
+	REP(i, mask_img.h) REP(j, mask_img.w) {
+		const Color& c = mask_img.get_pixel(i, j);
+		if (c.x - c.get_min() > MASK_COLOR_THRES) {		// red, discard
+			weight_mask.get(i, j) = -MASK_WEIGHT;
+		}
+		if (c.y - c.get_min() > MASK_COLOR_THRES) {		// green, keep
+			weight_mask.get(i, j) = MASK_WEIGHT;
+		}
+	}
 }
