@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Tue Dec 24 23:41:18 2013 +0800
+//Date: Sat Dec 28 11:35:07 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -27,12 +27,10 @@ class ImageResizer {
 
 	CONV_T conv_t = CONV_T::PREWITT;
 
-	vector<Path> removed_path;
-
 	public:
-		ImageResizer(const Img& _orig_img):
+		ImageResizer(const Img& _orig_img, CONV_T m_conv_t):
 			orig_img(_orig_img), greyimg(_orig_img),
-			weight_mask(_orig_img.w, _orig_img.h), result(_orig_img) {
+			weight_mask(_orig_img.w, _orig_img.h), result(_orig_img), conv_t(m_conv_t) {
 			cal_all_energy();
 		}
 

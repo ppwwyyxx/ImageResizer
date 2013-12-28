@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Tue Dec 24 11:49:27 2013 +0800
+//Date: Wed Dec 25 20:53:48 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -78,7 +78,6 @@ Path ImageResizer::get_path(const Matrix& e, int min_i) {
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
-	HWTimer timer("remove one path");
 	Img ret(result.w - 1, result.h);
 	REP(i, result.h)
 		REP(j, result.w - 1)
@@ -89,6 +88,7 @@ void ImageResizer::remove_vert_path(const Path& p) {
 		REP(j, weight_mask.w - 1)
 			new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
 	weight_mask = new_weight;
+
 
 	/*
 	 *imgptr test = make_shared<Img>(result);

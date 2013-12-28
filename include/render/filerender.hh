@@ -1,5 +1,5 @@
 // File: filerender.hh
-// Date: Sun Dec 22 14:36:40 2013 +0800
+// Date: Sat Dec 28 12:05:04 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -15,7 +15,7 @@ class FileRender : public RenderBase {
 		Magick::PixelPacket *pixels_ptr;
 
 	public:
-		FileRender(const ::Geometry& g, const char* m_fname):
+		FileRender(const ::Geometry& g, const string& m_fname):
 			RenderBase(g),
 			img(Magick::Geometry(g.w, g.h), "black"),
 			 fname(m_fname) {
@@ -25,10 +25,10 @@ class FileRender : public RenderBase {
 			pixels_ptr = view->get(0, 0, g.w, g.h);
 		}
 
-		FileRender(int w, int h, const char* fname):
+		FileRender(int w, int h, const string& fname):
 			FileRender(::Geometry(w, h), fname){}
 
-		FileRender(const std::shared_ptr<Img>& img, const char* fname):
+		FileRender(const std::shared_ptr<Img>& img, const string& fname):
 			FileRender(img->w, img->h, fname){
 			write(img);
 		}
