@@ -1,5 +1,5 @@
 // File: matrix.cc
-// Date: Sat Dec 21 17:31:06 2013 +0800
+// Date: Sun Dec 29 02:34:46 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <boost/numeric/mtl/mtl.hpp>
@@ -32,58 +32,6 @@ Matrix Matrix::prod(const Matrix & r) const {
 	return move(ret);
 }
 
-bool Matrix::inverse(Matrix &ret) const {
-	m_assert(w == h && w == ret.w && ret.w == ret.h);
-
-	mtlM input(h, w);
-	REP(i, h) REP(j, w) input(i, j) = get(i, j);
-	mtlM inverse(h, w);
-	try {
-		inv(input, inverse);
-	} catch (...) {
-		return false;
-	}
-
-	REP(i, h) REP(j, w)
-		ret.get(i, j) = inverse(i, j);
-
-	return true;
-}
-
-bool Matrix::solve_overdetermined(Matrix & x, const Matrix & b) const {
-	m_assert(h >= w);			// check overdetermined
-	Matrix mt = transpose();
-	Matrix mtm = mt.prod(*this);
-	Matrix inverse(mtm.w, mtm.h);
-	if (!mtm.inverse(inverse))		// TODO judge determinant threshold 0.001
-		return false;
-	x = inverse.prod(mt).prod(b);
-	return true;
-}
-
-bool Matrix::SVD(Matrix& u, Matrix& s, Matrix& v) const {
-	mtlM A(h, w);
-	REP(i, h) REP(j, w) A(i, j) = get(i, j);
-	mtlM l(h, h), m(h, w), r(w, w);
-	boost::tie(l, m, r) = svd(A, 1.e-6);
-	/*
-	 *cout << "done" << endl;
-	 *cout << l << endl << m << endl   << r << endl;
-	 *mtlM result(h, w);
-	 *mult(m, trans(r), result);
-	 *mult(l, result, result);
-	 *cout <<  result << endl;
-	 */
-
-	REP(i, h) REP(j, h)
-		u.get(i, j) = l(i, j);
-	REP(i, h) REP(j, w)
-		s.get(i, j) = m(i, j);
-	REP(i, w) REP(j, w)
-		v.get(i, j) = r(i, j);
-
-	return true;
-}
 
 void Matrix::normrot() {
 	m_assert(w == 3);

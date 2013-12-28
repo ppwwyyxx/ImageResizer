@@ -1,5 +1,5 @@
 // File: matrix.hh
-// Date: Sat Dec 28 16:40:18 2013 +0800
+// Date: Sun Dec 29 02:34:52 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -72,17 +72,11 @@ class Matrix {
 		const real_t & get(int i, int j) const
 		{ return val[i][j]; }
 
-		bool inverse(Matrix & ret) const;
-
 		Matrix transpose() const;
 
 		Matrix prod(const Matrix & r) const;
 
-		bool solve_overdetermined(Matrix & x, const Matrix & b) const;		//
-
 		friend std::ostream& operator << (std::ostream& os, const Matrix & m);
-
-		bool SVD(Matrix & u, Matrix & s, Matrix & v) const;
 
 		void normrot();
 
