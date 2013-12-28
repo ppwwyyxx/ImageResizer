@@ -1,12 +1,10 @@
 // File: matrix.cc
-// Date: Sun Dec 29 02:34:46 2013 +0800
+// Date: Sun Dec 29 02:35:33 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
-#include <boost/numeric/mtl/mtl.hpp>
 #include "matrix.hh"
 #include "geometry.hh"
 
-typedef mtl::matrix::dense2D<real_t> mtlM;
 using namespace std;
 
 ostream& operator << (std::ostream& os, const Matrix & m) {

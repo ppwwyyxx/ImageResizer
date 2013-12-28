@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 02:33:52 2013 +0800
+//Date: Sun Dec 29 02:41:40 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -33,7 +33,7 @@ namespace {
 	}
 
 	inline Color get_patch_point(const Img& img, Patch p, int w, int h) {
-		return img.get_pixel(p.first + w, p.second + h);
+		return img.get_pixel(p.second + h, p.first + w);
 	}
 
 	real_t cal_IMED(const Img& img1, Patch p1, const Img& img2, Patch p2) {

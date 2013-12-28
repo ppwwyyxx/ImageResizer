@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 29 01:37:31 2013 +0800
+//Date: Sun Dec 29 02:42:21 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
