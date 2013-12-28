@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sat Dec 28 15:19:24 2013 +0800
+//Date: Sat Dec 28 16:05:00 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -55,7 +55,7 @@ class ImageResizer {
 		static T img_transpose(const T& img) {
 			T ret(img.h, img.w);
 			REP(i, img.h) REP(j, img.w)
-				ret.set_pixel(j, i, img.get_pixel(i, j));
+				ret.get_pixel(j, i) = img.get_pixel(i, j);
 			return ret;
 		}
 

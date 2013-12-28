@@ -1,5 +1,5 @@
 // File: utils.hh
-// Date: Sun Dec 22 13:49:56 2013 +0800
+// Date: Sat Dec 28 15:42:18 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 
@@ -82,11 +82,13 @@ class HWTimer {
 	string msg;
 
 	public:
+		bool verbose = true;
 
 		HWTimer(const string& msg);
 
 		~HWTimer() {
-			cout << msg << ": " << sec() << " seconds" << endl;
+			if (verbose)
+				cout << msg << ": " << sec() << " seconds" << endl;
 		}
 
 		double sec() const;

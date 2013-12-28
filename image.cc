@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sun Dec 22 14:31:24 2013 +0800
+// Date: Sat Dec 28 16:18:54 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -38,7 +38,7 @@ Img::Img(const GreyImg& gr) {
 	init(gr.w, gr.h);
 	REP(i, h) REP(j, w) {
 		real_t grey = gr.get_pixel(i, j);
-		set_pixel(i, j, ::Color(grey, grey, grey));
+		get_pixel(i, j) = ::Color(grey, grey, grey);
 	}
 }
 
@@ -52,10 +52,10 @@ Img Img::get_resized(real_t factor) const {
 
 void Img::fill(const ::Color& c) {
 #pragma omp parallel for schedule(static)
-	REP(i, h) REP(j, w) set_pixel(i, j, c);
+	REP(i, h) REP(j, w) get_pixel(i, j) = c;
 }
 
-const ::Color& Img::get_pixel(int r, int c) const {
+::Color& Img::get_pixel(int r, int c) const {
 	m_assert(between(r, 0, h) && between(c, 0, w));
 	::Color *dest = pixel + r * w + c;
 	return *dest;
@@ -78,12 +78,6 @@ bool Img::is_image_edge(real_t y, real_t x) const {		// judge Color::NO
 	if (get_pixel((int)ceil(y), (int)ceil(x)).get_min() < 0) return true;
 	if (get_pixel((int)floor(y), (int)ceil(x)).get_min() < 0) return true;
 	return false;
-}
-
-void Img::set_pixel(int r, int c, const ::Color& val) {
-	m_assert(between(r, 0, h) && between(c, 0, w));
-	::Color *dest = pixel + r * w + c;
-	dest->x = val.x, dest->y = val.y, dest->z = val.z;
 }
 
 void Img::crop() {
@@ -112,16 +106,16 @@ void Img::crop() {
 	Img ret(rr - ll + 1, hh);
 	int offsetx = ll, offsety = nl - hh + 1;
 	REP(i, ret.h) REP(j, ret.w)
-		ret.set_pixel(i, j, get_pixel(i + offsety, j + offsetx));
+		ret.get_pixel(i, j) = get_pixel(i + offsety, j + offsetx);
 	*this = move(ret);
 }
 
-real_t GreyImg::get_pixel(int r, int c) const {
+real_t& GreyImg::get_pixel(int r, int c) const {
 	m_assert(between(r, 0, h) && between(c, 0, w));
 	return *(pixel + r * w + c);
 }
 
-real_t GreyImg::get_pixel_safe(int r, int c) const {
+real_t& GreyImg::get_pixel_safe(int r, int c) const {
 	if (r < 0) r = 0;
 	else if (r >= h) r = h - 1;
 	if (c < 0) c = 0;
@@ -129,28 +123,29 @@ real_t GreyImg::get_pixel_safe(int r, int c) const {
 	return *(pixel + r * w + c);
 }
 
-void GreyImg::set_pixel(int r, int c, real_t val) {
-	m_assert(between(r, 0, h) && between(c, 0, w));
-	*(pixel + r * w + c) = val;
-}
-
 GreyImg::GreyImg(const Matrix& m) {
 	init(m.w, m.h);
+	double max = 0;
+	REP(i, h) REP(j, w) {
+		double v = m.get(i, j);
+		update_max(max, v);
+		get_pixel(i, j) = v;
+	}
 	REP(i, h) REP(j, w)
-		set_pixel(i, j, m.get(i, j));
+		get_pixel(i, j) /= max;
 }
 
 void GreyImg::init_from_img(const Img& img) {
 	init(img.w, img.h);
 	REP(i, h) REP(j, w)
-		set_pixel(i, j, Filter::to_grey(img.get_pixel(i, j)));
+		get_pixel(i, j) = Filter::to_grey(img.get_pixel(i, j));
 }
 
 imgptr GreyImg::to_img() const {
 	imgptr ret = make_shared<Img>(w, h);
 	REP(i, h) REP(j, w) {
 		real_t grey = get_pixel(i, j);
-		ret->set_pixel(i, j, ::Color(grey, grey, grey));
+		ret->get_pixel(i, j) = ::Color(grey, grey, grey);
 	}
 	return ret;
 }

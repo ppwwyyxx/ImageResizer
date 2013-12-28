@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sun Dec 22 14:50:39 2013 +0800
+// Date: Sat Dec 28 16:06:06 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -41,7 +41,6 @@ class Img {
 		}
 
 		Img & operator = (Img && r) {
-			m_assert(this != &r);
 			delete[] pixel;
 			pixel = r.pixel;
 			w = r.w, h = r.h;
@@ -67,17 +66,15 @@ class Img {
 
 		Img get_resized(real_t factor) const;
 
-		const Color& get_pixel(int, int) const;
+		Color& get_pixel(int, int) const;
 
 		Color get_pixel(real_t, real_t) const;
 
-		const Color& get_pixel(const Coor& w) const
+		Color& get_pixel(const Coor& w) const
 		{ return get_pixel(w.y, w.x);}
 
 		Color get_pixel(const Vec2D& w) const
 		{ return get_pixel(w.y, w.x);}
-
-		void set_pixel(int, int, const Color&);
 
 		void fill(const Color& c);
 
@@ -118,6 +115,14 @@ class GreyImg {
 
 		GreyImg(const Matrix& m);
 
+		GreyImg & operator = (GreyImg && r) {
+			delete[] pixel;
+			pixel = r.pixel;
+			w = r.w, h = r.h;
+			r.pixel = nullptr;
+			return *this;
+		}
+
 		explicit GreyImg(const Img& img)
 		{ init_from_img(img); }
 
@@ -129,11 +134,9 @@ class GreyImg {
 
 		std::shared_ptr<Img> to_img() const;
 
-		real_t get_pixel(int x, int y) const;
+		real_t& get_pixel(int x, int y) const;
 
-		real_t get_pixel_safe(int, int) const;
-
-		void set_pixel(int x, int y, real_t c);
+		real_t& get_pixel_safe(int, int) const;
 
 };
 

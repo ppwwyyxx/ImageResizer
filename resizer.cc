@@ -1,9 +1,10 @@
 //File: resizer.cc
-//Date: Sat Dec 28 15:18:59 2013 +0800
+//Date: Sat Dec 28 16:10:42 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
 #include <future>
+#include "prgReporter.hh"
 #include "resizer.hh"
 #include "render/filerender.hh"
 
@@ -30,9 +31,11 @@ void ImageResizer::remove_row(int number) {
 // repeatly remove n=number columns
 void ImageResizer::remove_column(int number) {
 	print_debug("Removing %d columns...\n", number);
+	ProgressReporter prg(number);
 	HWTimer timer("Removing columns");
 	REP(k, number) {
 		remove_one_column();
+		prg.update(1);
 	}
 }
 
@@ -92,35 +95,40 @@ Path ImageResizer::get_path(const Matrix& e, int min_i) {
 }
 
 void ImageResizer::remove_vert_path(const Path& p) {
-//	HWTimer timer("remove one path");
+	HWTimer timer("remove one path");
 
 	// update result
-	Img ret(result.w - 1, result.h);
-	REP(i, result.h)
-		REP(j, result.w - 1)
-		ret.set_pixel(i, j, result.get_pixel(i, (j < p[i]) ? j : j + 1));
-	/*
-	 *imgptr test = make_shared<Img>(result);
-	 *REP(i, result.h)
-	 *    test->set_pixel(i, p[i], Color(0, 0, 0));
-	 *static int i = 0;
-	 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
-	 *rd.finish();
-	 */
+//	auto fut1 = async(launch::async, [&] {
+			Img ret(result.w - 1, result.h);
+			REP(i, result.h) {
+				memcpy(&ret.get_pixel(i, 0), &result.get_pixel(i, 0), (p[i] * sizeof(Color)));
+				if (p[i] != result.w - 1)
+					memcpy(&ret.get_pixel(i, p[i]), &result.get_pixel(i, p[i] + 1), (result.w - p[i] - 1) * sizeof(Color));
+			}
+			/*
+			 *imgptr test = make_shared<Img>(result);
+			 *REP(i, result.h)
+			 *    test->set_pixel(i, p[i], Color(0, 0, 0));
+			 *static int i = 0;
+			 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
+			 *rd.finish();
+			 */
 
-	result = ret;
-	greyimg = GreyImg(result);
-	//cal_all_energy();
-	update_energy(p);
-
+			//cout << timer.get_sec() << endl;
+			result = move(ret);
+			greyimg = GreyImg(result);
+			//cout << timer.get_sec() << endl;
+			//cal_all_energy();
+			update_energy(p);
+			//cout << timer.get_sec() << endl;
+//		});
 
 	// update weight
 	Matrix new_weight(weight_mask.w - 1, weight_mask.h);
 	REP(i, weight_mask.h)
 		REP(j, weight_mask.w - 1)
 		new_weight.get(i, j) = weight_mask.get(i, (j < p[i]) ? j : j + 1);
-	weight_mask = new_weight;
-
+	weight_mask = move(new_weight);
 }
 
 // update energy, after greyimg is correctly updated

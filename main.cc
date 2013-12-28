@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sat Dec 28 15:12:25 2013 +0800
+// Date: Sat Dec 28 15:34:55 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -27,13 +27,13 @@ struct Arg: public option::Arg {
 
 enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, UNKNOWN};
 const option::Descriptor usage[] = {
-	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	Input image."},
-	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	Output image."},
+	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	[Required] Input image."},
+	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	[Required] Output image."},
+	{WIDTH, 0, "w", "width", Arg::NonEmpty, "-w	Width, pixels in integer, or float between (0, 1]" },
+	{HEIGHT, 0, "h", "height", Arg::NonEmpty, "-h	Height, pixels in integer, or float between (0, 1]" },
 	{ENERGY, 0, "e", "energy", Arg::NonEmpty, "-e   	Output energy image."},
 	{MASK, 0, "m", "mask", Arg::NonEmpty, "-m   	Maks image, red to discard, green to keep."},
 	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type: prewitt, vsquare, sobel, laplacian"},
-	{WIDTH, 0, "w", "width", Arg::NonEmpty, "-w	Width, pixels in integer, or float between (0, 1]" },
-	{HEIGHT, 0, "h", "height", Arg::NonEmpty, "-h	Height, pixels in integer, or float between (0, 1]" },
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
                                              "  example --unknown -- --this_is_no_option\n"
                                              "  example -unk --plus -ppp file1 file2\n" },
