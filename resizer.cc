@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sat Dec 28 16:40:06 2013 +0800
+//Date: Sat Dec 28 17:45:10 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -153,4 +153,13 @@ void ImageResizer::update_mask(const Img& mask_img) {
 			weight_mask.get(i, j) = MASK_WEIGHT;
 		}
 	}
+}
+
+Matrix ImageResizer::blurMatrix(const Matrix& m) {
+	GreyImg img(m);
+	img = Filter::GaussianBlur(img);
+	Matrix ret(m.w, m.h);
+	REP(i, m.h) REP(j, m.w)
+		ret.get(i, j) = img.get_pixel(i, j);
+	return ret;
 }

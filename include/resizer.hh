@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sat Dec 28 16:05:00 2013 +0800
+//Date: Sat Dec 28 17:45:23 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -49,6 +49,7 @@ class ImageResizer {
 
 		void update_mask(const Img& mask_img);
 
+
 	protected:
 
 		template <typename T>
@@ -74,7 +75,7 @@ class ImageResizer {
 		inline real_t convolve(int i, int j) const {
 			switch (conv_t) {
 				case CONV_T::PREWITT:
-					return Filter::prewitt_convolve(greyimg, i, j);
+					return Filter::prewitt_convolve(result, i, j);
 				case CONV_T::V_SQURARE:
 					return Filter::vsquare_convolve(greyimg, i, j);
 				case CONV_T::SOBEL:
@@ -85,4 +86,6 @@ class ImageResizer {
 					m_assert(false);
 			}
 		}
+
+		static Matrix blurMatrix(const Matrix& m);
 };

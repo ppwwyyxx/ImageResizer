@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sat Dec 28 16:27:58 2013 +0800
+// Date: Sat Dec 28 17:05:39 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -57,6 +57,15 @@ void Img::fill(const ::Color& c) {
 
 ::Color& Img::get_pixel(int r, int c) const {
 	m_assert(between(r, 0, h) && between(c, 0, w));
+	::Color *dest = pixel + r * w + c;
+	return *dest;
+}
+
+::Color& Img::get_pixel_safe(int r, int c) const {
+	if (r < 0) r = 0;
+	else if (r >= h) r = h - 1;
+	if (c < 0) c = 0;
+	else if (c >= w) c = w - 1;
 	::Color *dest = pixel + r * w + c;
 	return *dest;
 }
@@ -135,10 +144,28 @@ GreyImg::GreyImg(const Matrix& m) {
 		get_pixel(i, j) /= max;
 }
 
-void GreyImg::init_from_img(const Img& img) {
+void GreyImg::init_from_img(const Img& img, int component) {
 	init(img.w, img.h);
-	REP(i, h) REP(j, w)
-		get_pixel(i, j) = Filter::to_grey(img.get_pixel(i, j));
+	switch (component) {
+		case 0:
+			REP(i, h) REP(j, w)
+				get_pixel(i, j) = Filter::to_grey(img.get_pixel(i, j));
+			break;
+		case 1:
+			REP(i, h) REP(j, w)
+				get_pixel(i, j) = img.get_pixel(i, j).x;
+			break;
+		case 2:
+			REP(i, h) REP(j, w)
+				get_pixel(i, j) = img.get_pixel(i, j).y;
+			break;
+		case 3:
+			REP(i, h) REP(j, w)
+				get_pixel(i, j) = img.get_pixel(i, j).z;
+			break;
+		default:
+			m_assert(false);
+	}
 }
 
 imgptr GreyImg::to_img() const {

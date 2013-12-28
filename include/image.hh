@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sat Dec 28 16:06:06 2013 +0800
+// Date: Sat Dec 28 17:06:57 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -68,6 +68,8 @@ class Img {
 
 		Color& get_pixel(int, int) const;
 
+		Color& get_pixel_safe(int, int) const;
+
 		Color get_pixel(real_t, real_t) const;
 
 		Color& get_pixel(const Coor& w) const
@@ -89,7 +91,7 @@ class GreyImg {
 	protected:
 		void init(int m_w, int m_h);
 
-		void init_from_img(const Img& img);
+		void init_from_img(const Img& img, int conponent = 0);
 
 		void init_from_image(const Magick::Image img);
 
@@ -123,8 +125,8 @@ class GreyImg {
 			return *this;
 		}
 
-		explicit GreyImg(const Img& img)
-		{ init_from_img(img); }
+		explicit GreyImg(const Img& img, int component = 0)
+		{ init_from_img(img, component); }
 
 		explicit GreyImg(const Magick::Image& img)
 		{ init_from_image(img); }

@@ -1,5 +1,5 @@
 // File: color.hh
-// Date: Sat Dec 28 15:06:17 2013 +0800
+// Date: Sat Dec 28 17:10:48 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -16,6 +16,9 @@ class Color: public Vector {
 
 		bool black() const
 		{ return is_zero(C_EPS); }
+
+		Color abs() const
+		{ return Color(fabs(x), fabs(y), fabs(z)); }
 
 		void check() const {
 			// if (!between(x, 0, 2) || !between(y, 0, 2) || !between(z, 0, 2))
@@ -35,5 +38,8 @@ class Color: public Vector {
 
 		Color operator + (const Color &v) const
 		{ return Color(x + v.x, y + v.y, z + v.z); }
+
+		Color operator - (const Color &v) const
+		{ return Color(x - v.x, y - v.y, z - v.z); }
 };
 
