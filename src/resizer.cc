@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 29 02:42:21 2013 +0800
+//Date: Sun Dec 29 03:34:28 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -45,6 +45,7 @@ void ImageResizer::remove_column(int number) {
 			result_set->results.push_back(result.get_resized(target_w, result.h));
 		prg.update(1);
 	}
+	cout << "Seam Carving takes " << timer.get_sec() << endl;
 
 	if (optimized) {
 		result_set->calculate();

@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 03:12:27 2013 +0800
+//Date: Sun Dec 29 03:53:58 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -7,6 +7,7 @@
 #include <omp.h>
 using namespace std;
 
+#include "prgReporter.hh"
 #include "imgDist.hh"
 #include "matrix.hh"
 
@@ -28,7 +29,6 @@ namespace {
 			nowh += PATCH_SHIFT;
 			noww = 0;
 		}
-		PP(ret.size());
 		return ret;
 	}
 
@@ -41,12 +41,14 @@ namespace {
 		if (start_diff > 0.05)
 			return numeric_limits<real_t>::max();
 		//PP(start_diff);
+		start_diff /= 2;
 		real_t sum = 0;
 		REP(i1, PATCH_SIZE) REP(j1, PATCH_SIZE) REP(i2, PATCH_SIZE) REP(j2, PATCH_SIZE) {
 			real_t diff_1 = (get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1)).sqr(),
 				   diff_2 = (get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2)).sqr();
 			//real_t dij2 = sqr((float)i1 / img1.w - (float)i2 / img2.w) + sqr((float)j1 / img1.h - (float)j2 / img2.h);
-		    //real_t gij = exp(-dij2) / 2 / M_PI;
+			//dij2 /= 2;
+		    //real_t gij = exp(-start_diff);
 			real_t gij = 1 / start_diff;		/// much faster than exp
 			sum += gij * diff_1 * diff_2;
 			if (sum > thres) return numeric_limits<real_t>::max();
@@ -61,7 +63,6 @@ namespace {
 		REP(i, m.h) row_min[i] = numeric_limits<real_t>::max();
 		REP(i, m.w) col_min[i] = numeric_limits<real_t>::max();
 		REP(i, m.h)  {
-			PP(i);
 			REP(j, m.w) {
 				real_t ret = cal_IMED(img2, p2[i], img1, p1[j], max(row_min[i], col_min[j]));
 				m.get(i, j) = ret;
@@ -91,12 +92,15 @@ void ImageDist::calculate() {
 	auto min_dist = numeric_limits<real_t>::max();
 	int min_i = -1;
 	int n = results.size();
+	ProgressReporter prg(n);
 #pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < n; i ++) {
-		HWTimer timer("for one result");
+		results[i].save("tmp-result" + to_string(i) + ".png");
 		real_t dist = cal_img_dist(orig, results[i]);
+		PP(dist);
 #pragma omp critical
 		if (update_min(min_dist, dist)) min_i = i;
+		prg.update(1);
 	}
 	PP(min_dist);
 	PP(min_i);

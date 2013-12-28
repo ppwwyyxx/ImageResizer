@@ -1,5 +1,5 @@
 // File: image.cc
-// Date: Sun Dec 29 03:14:22 2013 +0800
+// Date: Sun Dec 29 03:53:31 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
@@ -56,7 +56,8 @@ Img Img::get_resized(real_t factor) const {
 
 Img Img::get_resized(int neww, int newh) const {
 	Image img = MImg(make_shared<Img>(*this)).get_img();
-	img.resize(Magick::Geometry(neww, newh));
+//	img.resize(Magick::Geometry(neww, newh));
+	img.resize(to_string(neww) + "x" + to_string(newh) + "!");
 	return Img(img);
 }
 

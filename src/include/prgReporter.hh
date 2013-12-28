@@ -1,5 +1,5 @@
 //File: prgReporter.hh
-//Date: Sat Dec 28 15:47:13 2013 +0800
+//Date: Sun Dec 29 03:28:59 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -34,5 +34,8 @@ class ProgressReporter {
 				std::cout << timer.sec() << std::endl;
 		}
 
-		void update(double diff) { set(now + diff); }
+		void update(double diff) {
+#pragma omp critical
+			set(now + diff);
+		}
 };
