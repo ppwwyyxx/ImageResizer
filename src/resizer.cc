@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 29 01:33:40 2013 +0800
+//Date: Sun Dec 29 01:37:31 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -46,8 +46,10 @@ void ImageResizer::remove_column(int number) {
 		prg.update(1);
 	}
 
-	if (result_set)
+	if (optimized) {
+		result_set->calculate();
 		delete result_set;
+	}
 }
 
 void ImageResizer::remove_one_column() {
