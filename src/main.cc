@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sat Dec 28 18:20:01 2013 +0800
+// Date: Sun Dec 29 01:36:03 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -29,14 +29,14 @@ enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, UNKNOWN};
 const option::Descriptor usage[] = {
 	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	[Required] Input image."},
 	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	[Required] Output image."},
-	{WIDTH, 0, "w", "width", Arg::NonEmpty, "-w	Width, pixels in integer, or float between (0, 1]" },
-	{HEIGHT, 0, "h", "height", Arg::NonEmpty, "-h	Height, pixels in integer, or float between (0, 1]" },
+	{WIDTH, 0, "w", "width", Arg::NonEmpty, "-w	Width, can be pixel number in integer, or a relative number in (0, 1]" },
+	{HEIGHT, 0, "h", "height", Arg::NonEmpty, "-h	Height, same as above" },
 	{ENERGY, 0, "e", "energy", Arg::NonEmpty, "-e   	Output energy image."},
 	{MASK, 0, "m", "mask", Arg::NonEmpty, "-m   	Maks image, red to discard, green to keep."},
-	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type: prewitt, vsquare, sobel, laplacian"},
+	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type. can be one of prewitt, vsquare, sobel, laplacian"},
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
-                                             "  example --unknown -- --this_is_no_option\n"
-                                             "  example -unk --plus -ppp file1 file2\n" },
+                                             "  ./main -i in.png -o out.png -w 0.9 -e energy.png\n"
+                                             "  ./main -i in.png -o out.png -w 300 -h 200\n" },
 	{0, 0, 0, 0, 0, 0}
 };
 
@@ -111,7 +111,5 @@ int main(int argc, char* argv[]) {
 
 	resizer.resize(destw, desth);
 
-	imgptr result = make_shared<Img>(resizer.result);
-	FileRender rd2(result, outfile);
-	rd2.finish();
+	resizer.result.save(outfile);
 }

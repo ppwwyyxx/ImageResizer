@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sat Dec 28 17:45:23 2013 +0800
+//Date: Sun Dec 29 01:28:39 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -21,6 +21,8 @@ typedef vector<int> Path;
 class ImageResizer {
 	public:
 	const Img& orig_img;
+
+	bool optimized = true;
 
 	GreyImg greyimg;
 	Matrix weight_mask;
@@ -48,7 +50,6 @@ class ImageResizer {
 		void set_conv(CONV_T c) { conv_t = c; }
 
 		void update_mask(const Img& mask_img);
-
 
 	protected:
 

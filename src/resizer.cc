@@ -1,11 +1,12 @@
 //File: resizer.cc
-//Date: Sat Dec 28 17:45:10 2013 +0800
+//Date: Sun Dec 29 01:33:40 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
 #include <future>
 #include "prgReporter.hh"
 #include "resizer.hh"
+#include "imgDist.hh"
 #include "render/filerender.hh"
 
 void ImageResizer::resize(int w, int h) {
@@ -30,13 +31,23 @@ void ImageResizer::remove_row(int number) {
 
 // repeatly remove n=number columns
 void ImageResizer::remove_column(int number) {
+	int target_w = result.w - number;
+	ImageDist* result_set;
+	if (optimized)
+		result_set = new ImageDist(result, number);
+
 	print_debug("Removing %d columns...\n", number);
 	ProgressReporter prg(number);
 	HWTimer timer("Removing columns");
 	REP(k, number) {
 		remove_one_column();
+		if (optimized)
+			result_set->results.push_back(result.get_resized(target_w, result.h));
 		prg.update(1);
 	}
+
+	if (result_set)
+		delete result_set;
 }
 
 void ImageResizer::remove_one_column() {
@@ -153,6 +164,7 @@ void ImageResizer::update_mask(const Img& mask_img) {
 			weight_mask.get(i, j) = MASK_WEIGHT;
 		}
 	}
+	weight_mask = ImageResizer::blurMatrix(weight_mask);
 }
 
 Matrix ImageResizer::blurMatrix(const Matrix& m) {

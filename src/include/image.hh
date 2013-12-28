@@ -1,5 +1,5 @@
 // File: image.hh
-// Date: Sat Dec 28 17:06:57 2013 +0800
+// Date: Sun Dec 29 01:35:04 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -66,6 +66,8 @@ class Img {
 
 		Img get_resized(real_t factor) const;
 
+		Img get_resized(int, int) const;
+
 		Color& get_pixel(int, int) const;
 
 		Color& get_pixel_safe(int, int) const;
@@ -80,11 +82,9 @@ class Img {
 
 		void fill(const Color& c);
 
-		bool is_image_edge(real_t, real_t) const;
-
 		Vec2D get_center() const { return Vec2D(w / 2, h / 2); }
 
-		void crop();
+		void save(const string& fname) const;
 };
 
 class GreyImg {

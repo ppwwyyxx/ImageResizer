@@ -1,5 +1,5 @@
 % File: intro.tex
-% Date: Sun Dec 29 00:16:58 2013 +0800
+% Date: Sun Dec 29 00:32:44 2013 +0800
 % Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 \section{Introduction}
 This is an image retargeting program using Seam Carving\cite{sc} algorithm.
@@ -19,6 +19,16 @@ $ make
 \end{lstlisting}
 
 \subsection{Run}
+The program supports following command line arguments:
+\begin{lstlisting}
+  -i    input image file
+  -o    output image file
+  -w    target width. can be the pixel number in integer, or a relative number in (0, 1]
+  -h    target height. same as above
+  -e    energy file, optional
+  -m    mask file, optional
+  -c    convolution type, can be one of 'prewitt', 'vsquare', 'sobel', 'laplacian'
+\end{lstlisting}
 
 \subsection{Examples}
 \begin{enumerate}

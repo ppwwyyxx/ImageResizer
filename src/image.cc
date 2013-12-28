@@ -1,9 +1,10 @@
 // File: image.cc
-// Date: Sat Dec 28 17:05:39 2013 +0800
+// Date: Sun Dec 29 01:36:27 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include "image.hh"
 #include "filter.hh"
+#include "render/filerender.hh"
 #include "render/MImageRender.hh"
 using namespace std;
 using namespace Magick;
@@ -50,6 +51,12 @@ Img Img::get_resized(real_t factor) const {
 	return Img(img);
 }
 
+Img Img::get_resized(int neww, int newh) const {
+	Image img = MImg(make_shared<Img>(*this)).get_img();
+	img.resize(Magick::Geometry(neww, newh));
+	return Img(img);
+}
+
 void Img::fill(const ::Color& c) {
 #pragma omp parallel for schedule(static)
 	REP(i, h) REP(j, w) get_pixel(i, j) = c;
@@ -80,43 +87,10 @@ void Img::fill(const ::Color& c) {
 	return ret;
 }
 
-bool Img::is_image_edge(real_t y, real_t x) const {		// judge Color::NO
-	if (!between(x, 0, w) || !between(y, 0, h)) return true;
-	if (get_pixel((int)floor(y), (int)floor(x)).get_min() < 0) return true;
-	if (get_pixel((int)ceil(y), (int)floor(x)).get_min() < 0) return true;
-	if (get_pixel((int)ceil(y), (int)ceil(x)).get_min() < 0) return true;
-	if (get_pixel((int)floor(y), (int)ceil(x)).get_min() < 0) return true;
-	return false;
-}
-
-void Img::crop() {
-	int height[w], left[w], right[w];
-	int maxarea = 0;
-	int ll = 0, rr = 0, hh = 0, nl = 0;
-	memset(height, 0, sizeof(height));
-	REP(line, h) {
-		REP(k, w)
-			height[k] = get_pixel(line, k).get_max() < 0 ? 0 : height[k] + 1;	// judge Color::NO
-
-		REP(k, w) {
-			left[k] = k;
-			while (left[k] > 0 && height[k] <= height[left[k] - 1])
-				left[k] = left[left[k] - 1];
-		}
-		REPD(k, w - 1, 0) {
-			right[k] = k;
-			while (right[k] < w - 1 && height[k] <= height[right[k] + 1])
-				right[k] = right[right[k] + 1];
-		}
-		REP(k, w)
-			if (update_max(maxarea, (right[k] - left[k] + 1) * height[k]))
-				ll = left[k], rr = right[k], hh = height[k], nl = line;
-	}
-	Img ret(rr - ll + 1, hh);
-	int offsetx = ll, offsety = nl - hh + 1;
-	REP(i, ret.h) REP(j, ret.w)
-		ret.get_pixel(i, j) = get_pixel(i + offsety, j + offsetx);
-	*this = move(ret);
+void Img::save(const string& fname) const {
+	imgptr result = make_shared<Img>(*this);
+	FileRender rd(result, fname);
+	rd.finish();
 }
 
 real_t& GreyImg::get_pixel(int r, int c) const {
