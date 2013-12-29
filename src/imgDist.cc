@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 16:21:39 2013 +0800
+//Date: Sun Dec 29 16:59:57 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -45,7 +45,7 @@ real_t ImageDist::cal_IMED(const Img& img1, Patch p1, const Img& img2, Patch p2,
 		Color diff_1 = (get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1)).abs(),
 			  diff_2 = (get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2)).abs();
 		real_t dij2 = sqr((float)i1 / img1.w - (float)i2 / img2.w) + sqr((float)j1 / img1.h - (float)j2 / img2.h);
-		real_t gij = exp(-dij2 / 2);
+		real_t gij = exp(-dij2 / 2) / 2 / M_PI;
 		//real_t gij = 2 / start_diff;		/// much faster than exp
 		sum += diff_1 * diff_2 * gij;
 		if (!(sum.x + sum.y + sum.z < thres))			// to avoid inf problem

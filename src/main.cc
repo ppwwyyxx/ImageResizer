@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sun Dec 29 01:36:03 2013 +0800
+// Date: Sun Dec 29 17:01:55 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -25,7 +25,7 @@ struct Arg: public option::Arg {
   }
 };
 
-enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, UNKNOWN};
+enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, OPTIMIZED, UNKNOWN};
 const option::Descriptor usage[] = {
 	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	[Required] Input image."},
 	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	[Required] Output image."},
@@ -34,6 +34,7 @@ const option::Descriptor usage[] = {
 	{ENERGY, 0, "e", "energy", Arg::NonEmpty, "-e   	Output energy image."},
 	{MASK, 0, "m", "mask", Arg::NonEmpty, "-m   	Maks image, red to discard, green to keep."},
 	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type. can be one of prewitt, vsquare, sobel, laplacian"},
+	{OPTIMIZED, 0, "p", "optimized", Arg::None, "-p   	Use Optimized Seam Carving(slow)."},
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
                                              "  ./main -i in.png -o out.png -w 0.9 -e energy.png\n"
                                              "  ./main -i in.png -o out.png -w 300 -h 200\n" },
@@ -108,6 +109,9 @@ int main(int argc, char* argv[]) {
 	if (!desth) desth = input.h;
 	PP(destw);
 	PP(desth);
+
+	if (options[OPTIMIZED])
+		resizer.optimized = true;
 
 	resizer.resize(destw, desth);
 
