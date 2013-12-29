@@ -1,5 +1,5 @@
 //File: imgDist.hh
-//Date: Sun Dec 29 16:20:01 2013 +0800
+//Date: Sun Dec 29 16:26:46 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -18,7 +18,7 @@ class ImageDist {
 		ImageDist(const Img& m_orig, int number) :
 			orig(m_orig) {
 				results.reserve(number);
-				PATCH_SIZE = orig.w / 30;
+				PATCH_SIZE = orig.w / 25;
 				PATCH_SHIFT = PATCH_SIZE / 2;
 		}
 
