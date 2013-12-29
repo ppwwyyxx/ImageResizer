@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 13:36:07 2013 +0800
+//Date: Sun Dec 29 15:39:00 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -13,8 +13,8 @@ using namespace std;
 
 // Optimized Image Resizing Using Seam Carving and Scaling, by W Dong, 2009
 namespace {
-	const int PATCH_SIZE = 20;
-	const int PATCH_SHIFT = 10;
+	const int PATCH_SIZE = 10;
+	const int PATCH_SHIFT = 5;
 
 	typedef pair<int, int> Patch;
 
@@ -48,11 +48,11 @@ namespace {
 		start_diff /= 2;
 		Color sum(0, 0, 0);
 		REP(i1, PATCH_SIZE) REP(j1, PATCH_SIZE) REP(i2, PATCH_SIZE) REP(j2, PATCH_SIZE) {
-			Color diff_1 = get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1),
-				  diff_2 = get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2);
+			Color diff_1 = (get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1)).abs(),
+				  diff_2 = (get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2)).abs();
 			real_t dij2 = sqr((float)i1 / img1.w - (float)i2 / img2.w) + sqr((float)j1 / img1.h - (float)j2 / img2.h);
 		    real_t gij = exp(-dij2 / 2);
-			//real_t gij = 1 / start_diff;		/// much faster than exp
+			//real_t gij = 2 / start_diff;		/// much faster than exp
 			sum += diff_1 * diff_2 * gij;
 			if (!(sum.x + sum.y + sum.z < thres))			// to avoid inf problem
 				return numeric_limits<real_t>::max();
