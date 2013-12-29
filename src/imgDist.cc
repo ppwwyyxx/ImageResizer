@@ -1,5 +1,5 @@
 //File: imgDist.cc
-//Date: Sun Dec 29 03:53:58 2013 +0800
+//Date: Sun Dec 29 13:36:07 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -37,23 +37,27 @@ namespace {
 
 	real_t cal_IMED(const Img& img1, Patch p1, const Img& img2, Patch p2, real_t thres) {
 		thres = thres * thres;
-		real_t start_diff = sqr((float)p1.first / img1.w - (float)p2.first / img2.w) + sqr((float)p1.second / img1.h - (float)p2.second / img2.h);
-		if (start_diff > 0.05)
+		real_t diff_h = (float)p1.second / img1.h - (float)p2.second / img2.h;
+		if (fabs(diff_h) > 0.4)
 			return numeric_limits<real_t>::max();
-		//PP(start_diff);
+		real_t start_diff = sqr((float)p1.first / img1.w - (float)p2.first / img2.w) + sqr(diff_h);
+		/*
+		 *if (start_diff > 0.4)
+		 *    return numeric_limits<real_t>::max();
+		 */
 		start_diff /= 2;
-		real_t sum = 0;
+		Color sum(0, 0, 0);
 		REP(i1, PATCH_SIZE) REP(j1, PATCH_SIZE) REP(i2, PATCH_SIZE) REP(j2, PATCH_SIZE) {
-			real_t diff_1 = (get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1)).sqr(),
-				   diff_2 = (get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2)).sqr();
-			//real_t dij2 = sqr((float)i1 / img1.w - (float)i2 / img2.w) + sqr((float)j1 / img1.h - (float)j2 / img2.h);
-			//dij2 /= 2;
-		    //real_t gij = exp(-start_diff);
-			real_t gij = 1 / start_diff;		/// much faster than exp
-			sum += gij * diff_1 * diff_2;
-			if (sum > thres) return numeric_limits<real_t>::max();
+			Color diff_1 = get_patch_point(img1, p1, i1, j1) - get_patch_point(img2, p2, i1, j1),
+				  diff_2 = get_patch_point(img1, p1, i2, j2) - get_patch_point(img2, p2, i2, j2);
+			real_t dij2 = sqr((float)i1 / img1.w - (float)i2 / img2.w) + sqr((float)j1 / img1.h - (float)j2 / img2.h);
+		    real_t gij = exp(-dij2 / 2);
+			//real_t gij = 1 / start_diff;		/// much faster than exp
+			sum += diff_1 * diff_2 * gij;
+			if (!(sum.x + sum.y + sum.z < thres))			// to avoid inf problem
+				return numeric_limits<real_t>::max();
 		}
-		return sqrt(sum);
+		return sqrt(sum.x) + sqrt(sum.y) + sqrt(sum.z);
 	}
 
 	real_t cal_dIE(const Img& img1, const vector<Patch>& p1, const Img& img2, const vector<Patch>& p2) {
@@ -95,7 +99,7 @@ void ImageDist::calculate() {
 	ProgressReporter prg(n);
 #pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < n; i ++) {
-		results[i].save("tmp-result" + to_string(i) + ".png");
+//		results[i].save("tmp-result" + to_string(i) + ".png");
 		real_t dist = cal_img_dist(orig, results[i]);
 		PP(dist);
 #pragma omp critical
