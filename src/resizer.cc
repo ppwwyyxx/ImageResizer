@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 29 17:06:44 2013 +0800
+//Date: Sun Dec 29 19:35:49 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -117,14 +117,15 @@ void ImageResizer::remove_vert_path(const Path& p) {
 		if (p[i] != result.w - 1)
 			memcpy(&ret.get_pixel(i, p[i]), &result.get_pixel(i, p[i] + 1), (result.w - p[i] - 1) * sizeof(Color));
 	}
-	/*
-	 *imgptr test = make_shared<Img>(result);
-	 *REP(i, result.h)
-	 *    test->set_pixel(i, p[i], Color(0, 0, 0));
-	 *static int i = 0;
-	 *FileRender rd(test, ("path" + string_format("%02d", (i ++)) + ".png").c_str());
-	 *rd.finish();
-	 */
+
+	if (video) {
+		imgptr test = make_shared<Img>(result);
+		REP(i, result.h)
+			test->get_pixel(i, p[i]) = Color(0, 0, 0);
+		static int i = 0;
+		FileRender rd(test, ("path" + string_format("%03d", (i ++)) + ".png").c_str());
+		rd.finish();
+	}
 
 	result = move(ret);
 	greyimg = GreyImg(result);

@@ -1,5 +1,5 @@
 //File: resizer.hh
-//Date: Sun Dec 29 17:38:40 2013 +0800
+//Date: Sun Dec 29 19:35:07 2013 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #pragma once
@@ -25,6 +25,7 @@ class ImageResizer {
 	const Img& orig_img;
 
 	bool optimized = false;
+	bool video = false;
 
 	GreyImg greyimg;
 	Matrix weight_mask;

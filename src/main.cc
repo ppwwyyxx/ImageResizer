@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sun Dec 29 17:47:37 2013 +0800
+// Date: Sun Dec 29 19:35:18 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -26,7 +26,7 @@ struct Arg: public option::Arg {
   }
 };
 
-enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, OPTIMIZED, FEATURE, UNKNOWN};
+enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, OPTIMIZED, FEATURE, VIDEO, UNKNOWN};
 const option::Descriptor usage[] = {
 	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	[Required] Input image."},
 	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	[Required] Output image."},
@@ -37,6 +37,7 @@ const option::Descriptor usage[] = {
 	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type. can be one of prewitt, vsquare, sobel, laplacian"},
 	{OPTIMIZED, 0, "p", "optimized", Arg::None, "-p   	Use Optimized Seam Carving(slow)."},
 	{FEATURE, 0, "f", "feature", Arg::NonEmpty, "-f   	Use feature as mask. every line is \"r c\" "},
+	{VIDEO, 0, "v", "video", Arg::None, "-v   	Output images with carved path for video generation."},
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
                                              "  ./main -i in.png -o out.png -w 0.9 -e energy.png\n"
                                              "  ./main -i in.png -o out.png -w 300 -h 200\n" },
@@ -131,6 +132,8 @@ int main(int argc, char* argv[]) {
 
 	if (options[OPTIMIZED])
 		resizer.optimized = true;
+	if (options[VIDEO])
+		resizer.video = true;
 
 	resizer.resize(destw, desth);
 
