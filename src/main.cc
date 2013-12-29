@@ -1,8 +1,9 @@
 // File: main.cc
-// Date: Sun Dec 29 17:01:55 2013 +0800
+// Date: Sun Dec 29 17:47:37 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
+#include <fstream>
 #include "render/filerender.hh"
 #include "planedrawer.hh"
 #include "resizer.hh"
@@ -25,7 +26,7 @@ struct Arg: public option::Arg {
   }
 };
 
-enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, OPTIMIZED, UNKNOWN};
+enum optionIndex { INPUT , OUTPUT, ENERGY, MASK, CONV, WIDTH, HEIGHT, OPTIMIZED, FEATURE, UNKNOWN};
 const option::Descriptor usage[] = {
 	{INPUT, 0, "i", "input", Arg::NonEmpty, "-i	[Required] Input image."},
 	{OUTPUT, 0, "o", "output", Arg::NonEmpty, "-o	[Required] Output image."},
@@ -35,6 +36,7 @@ const option::Descriptor usage[] = {
 	{MASK, 0, "m", "mask", Arg::NonEmpty, "-m   	Maks image, red to discard, green to keep."},
 	{CONV, 0, "c", "convolution", Arg::NonEmpty, "-c	Convolution type. can be one of prewitt, vsquare, sobel, laplacian"},
 	{OPTIMIZED, 0, "p", "optimized", Arg::None, "-p   	Use Optimized Seam Carving(slow)."},
+	{FEATURE, 0, "f", "feature", Arg::NonEmpty, "-f   	Use feature as mask. every line is \"r c\" "},
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
                                              "  ./main -i in.png -o out.png -w 0.9 -e energy.png\n"
                                              "  ./main -i in.png -o out.png -w 300 -h 200\n" },
@@ -87,6 +89,23 @@ int main(int argc, char* argv[]) {
 	if (options[MASK].arg) {
 		Img mask(options[MASK].arg);
 		resizer.update_mask(mask);
+	}
+	if (options[FEATURE].arg) {
+		string ffile_name = options[FEATURE].arg;
+		PP(ffile_name);
+		Matrix mask(input.w, input.h);
+		ifstream ffile;
+		ffile.open(ffile_name);
+		int r, c;
+		while (ffile >> r >> c) {
+			mask.get(c, r) = 2;
+		}
+		ffile.close();
+		resizer.weight_mask = ImageResizer::blurMatrix(mask);
+
+		string out_energy_file = "out-mask.png";
+		imgptr energyimg = make_shared<Img>(GreyImg(resizer.weight_mask));
+		FileRender(energyimg, out_energy_file).finish();
 	}
 
 	int destw = 0, desth = 0;

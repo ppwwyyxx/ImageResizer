@@ -1,5 +1,5 @@
 // File: filter.cc
-// Date: Sat Dec 28 17:35:09 2013 +0800
+// Date: Sun Dec 29 17:46:01 2013 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <functional>
@@ -81,7 +81,7 @@ real_t Filter::laplacian_convolve(const GreyImg& img, int i, int j) {
 
 
 class GaussKernel {
-const double GAUSS_WINDOW_FACTOR = 6;
+const double GAUSS_WINDOW_FACTOR = 40;
 	public:
 		real_t ** kernel;
 		real_t kernel_tot;
@@ -90,7 +90,7 @@ const double GAUSS_WINDOW_FACTOR = 6;
 
 		GaussKernel() {
 
-			real_t sigma = 2;
+			real_t sigma = 7;
 			kw = ceil(0.3 * (sigma / 2 - 1) + 0.8) * GAUSS_WINDOW_FACTOR;
 			// TODO decide window size ?
 
