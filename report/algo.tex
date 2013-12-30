@@ -1,9 +1,107 @@
 % File: algo.tex
-% Date: Sun Dec 29 04:04:40 2013 +0800
+% Date: Mon Dec 30 23:27:10 2013 +0800
 % Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 \section{Algorithms}
 
 \subsection{Seam Carving}
-We will briefly introduce the main processes of Seam Carving algorithm. For the details,
-please refer to the original paper\cite{sc}.
+This section will briefly introduce the main processes of Seam Carving algorithm
+as well as the optimizaitons I made.
+For the details of this algorithm, please refer to the original paper\cite{sc}.
+
+\begin{enumerate}
+    \item \textbf{Energy Map}
+
+      An energy map of the original image must be first calculated to
+      measue the ``importance'' of every pixel.
+      In our implementation, four types of convolution kernel
+      are supported to calculate energy map:
+
+\begin{enumerate}
+    \item Prewitt:
+      \[ \begin{bmatrix}
+          -1 & 0 & 1\\
+          -1 & 0 & 1 \\
+          -1 & 0 & 1\\
+        \end{bmatrix} +
+      \begin{bmatrix}
+          -1 & -1 & -1\\
+          0 & 0 & 0 \\
+          1 & 1 & 1\\
+        \end{bmatrix} \]
+
+        \item vsquare
+      \[ (\begin{bmatrix}
+          -1 & 0 & 1\\
+          -1 & 0 & 1 \\
+          -1 & 0 & 1\\
+        \end{bmatrix})^2 \]
+
+      \item sobel(default)
+      \[ \begin{bmatrix}
+          -1 & 0 & 1\\
+          -2 & 0 & 2 \\
+          -1 & 0 & 1\\
+        \end{bmatrix} +
+      \begin{bmatrix}
+          -1 & -2 & -1\\
+          0 & 0 & 0 \\
+          1 & 2 & 1\\
+        \end{bmatrix} \]
+
+      \item laplacian
+
+        \[ \begin{bmatrix}
+          -1 & 0 & -1\\
+          0 & 4 & 0 \\
+          -1 & 0 & -1\\
+          \end{bmatrix}\]
+\end{enumerate}
+
+\item Mask
+  The program allows users to use an image mask to declare the region they
+  prefer to keep or discard. Users can modify the output energy grey image
+  and adding red or green regions to it. Red region will have lower energy value,
+  and therefore more likely to be discarded. Green region will be kept.
+
+  \item Optimized Seam Carving
+
+    \cite{sco} suggested an optimized version of seam-carving, by integrating seam-carving with scale.
+    Their method first uses seam-carving to cut of certain number of seams,
+    than apply a direct scale. They try all the possible number of seams to carve, and
+    choose the best result measuring by their ``Patch-Level Image Dist Function'':
+
+    \[ D(P, Q) = \sqrt{\sum_{i=1}^{nm}\sum_{j=1}^{nm}g_{ij}(p_i-q_i)(p_j-q_j)}\]
+
+    Actually, from my observation, this formula is just a simple combination of the two factor: ``Coordinate Distance'' and
+    ``Color distance'', measured by the two terms $g_{ij}$ and $(p_i-q_i)(p_j-q_j)$, respectively.
+
+    There is a tradeoff between the two distance:
+    if ``Color Distance'' is more important, the result tends to cut more seams and use less scaling.
+    Since seam-carving can keep lots of patches in the image unchanged.
+    If ``Coordinate Distance'' is more important, the algorithm is more likely to use scaling rather
+    than seam-carving, since scaling keep the relative coordinate of every pixel unchanged.
+
+    Therefore, the performace of this algorithm is strongly dependent on the choice of parameter,
+    weighting the two types of distance mentioned above, i.e. the choice of $\sigma$ in $ g_{ij}$.
+    From my experiements, it works well only when $\sigma$ is carefully selected. But most of the
+    time the algorithm will only naively choose to use only seam-carving or only scaling.
+
+    Also, this algorithm, although with parallel support, is still quite ineffective in computation,
+    since the image distance takes too much time to calculate. One optimization can be made on
+    the patch distance computation: I first assumed that all input image is needed for
+    horizontally resize (since we can always transpose the image to get the same result).
+    Then, when comparing a pair of patches,
+    we can directly discard them if their vertical coordinate difference is larger than a threshold.
+    This is reasonably because the ``Coordinate Distance'' mentioned above shall only
+    account for horizontal coordinate distance.
+
+  \item Feature Map
+
+    I tried detecting keypoints in SIFT features, and add them to the energy map, since these are
+    points that shall be kept. Keypoints coordinate will be Gaussian-blured before
+    added to the energy map. However, this didn't give a better result than the original seam-carving,
+    since SIFT keypoints are similar to those points previously detected by convolution.
+
+\end{enumerate}
+
