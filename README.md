@@ -2,7 +2,11 @@
 
 An Image Resizer using Seam Carving alogrithm.
 
-See: Avidan, Shai, and Ariel Shamir. *Seam carving for content-aware image resizing.* SIGGRAPH2007
+See:
+
+Avidan, Shai, and Ariel Shamir. *Seam carving for content-aware image resizing.* SIGGRAPH2007
+
+Dong, Weiming, et al. *Optimized image resizing using seam carving and scaling.* SIGGRAPH2009
 
 ### Compile
 
