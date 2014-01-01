@@ -13,12 +13,14 @@ Dependencies:
 
 
 Compile:
+
 ```
 $ make
 ```
 
-### Use:
+### Usage:
 See help:
+
 ```
 $ ./image_resize
 -i   [Required] Input image.
