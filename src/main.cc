@@ -1,5 +1,5 @@
 // File: main.cc
-// Date: Sun Dec 29 19:35:18 2013 +0800
+// Date: Wed Jan 01 14:24:10 2014 +0800
 // Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <iostream>
@@ -39,8 +39,8 @@ const option::Descriptor usage[] = {
 	{FEATURE, 0, "f", "feature", Arg::NonEmpty, "-f   	Use feature as mask. every line is \"r c\" "},
 	{VIDEO, 0, "v", "video", Arg::None, "-v   	Output images with carved path for video generation."},
 	{UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "\nExamples:\n"
-                                             "  ./main -i in.png -o out.png -w 0.9 -e energy.png\n"
-                                             "  ./main -i in.png -o out.png -w 300 -h 200\n" },
+                                             "  ./image_resize -i in.png -o out.png -w 0.9 -e energy.png\n"
+                                             "  ./image_resize -i in.png -o out.png -w 300 -h 200\n" },
 	{0, 0, 0, 0, 0, 0}
 };
 
