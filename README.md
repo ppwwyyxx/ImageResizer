@@ -1,6 +1,6 @@
 ### Introduction
 
-An Image Resizer using Seam Carving alogrithm.
+An Content-Aware Image Resizer using Seam Carving alogrithm.
 
 See:
 
