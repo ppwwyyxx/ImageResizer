@@ -45,4 +45,4 @@ $ ./image_resize
 ```
 
 ![city](https://github.com/ppwwyyxx/ImageResizer/raw/master/data/city.jpg)
-![city-resized](https://github.com/ppwwyyxx/ImageResizer/raw/master/result/city.jpg)
+![city-resized](https://github.com/ppwwyyxx/ImageResizer/raw/master/result/city.png)
