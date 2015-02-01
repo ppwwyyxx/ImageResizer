@@ -1,5 +1,5 @@
 //File: resizer.cc
-//Date: Sun Dec 29 19:35:49 2013 +0800
+//Date: Sun Feb 01 21:57:18 2015 +0800
 //Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 
 #include <limits>
@@ -73,6 +73,7 @@ void ImageResizer::remove_one_column() {
 			acc_energy.get(i, j) = min(acc_energy.get(i - 1, j - 1), acc_energy.get(i - 1, j), acc_energy.get(i - 1, j + 1))
 				+ point_weight(i, j);
 	}
+	PP(acc_energy);
 	real_t min_e = numeric_limits<real_t>::max();
 	int min_i;
 	REP(j, w)
